@@ -14,14 +14,15 @@
     "@react-three/fiber": "^9.4.0",
     "@react-three/postprocessing": "^3.0.4",
     "@sanity/image-url": "^1.2.0",
-    "@sanity/vision": "^4.16.0",
+    "@sanity/vision": "^4.19.0",
     "@types/three": "^0.181.0",
     "framer-motion": "^12.23.24",
     "next": "16.0.3",
     "next-sanity": "^9.12.3",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "sanity": "^3.99.0",
+    "sanity": "^4.19.0",
+    "styled-components": "^6.1.19",
     "three": "^0.181.2"
   },
   "devDependencies": {
