@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Project } from '@/types'
 import { urlForImage } from '@/sanity/lib/image'
+import Image from 'next/image'
 import { useState } from 'react'
 
 interface ProjectGridProps {
@@ -34,13 +35,16 @@ export default function ProjectGrid({ projects }: ProjectGridProps) {
           onMouseLeave={() => setHoveredId(null)}
           className="relative group aspect-[4/5] overflow-hidden bg-black/5 dark:bg-white/5 rounded-2xl"
         >
-          <Link href={`/work/${project.slug}`} className="block w-full h-full cursor-pointer">
-            {/* Background Image */}
+          <Link href={`/work/${project.slug}`} className="block w-full h-full cursor-pointer relative">
+            {/* Background Image using Next.js Image for optimization */}
             {project.mainImage && (
-              <motion.img
-                src={urlForImage(project.mainImage).url()}
+              <Image
+                src={urlForImage(project.mainImage).width(1200).quality(85).url()}
                 alt={project.mainImage.alt || project.title}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                priority={index < 4}
               />
             )}
             

@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { PortableText } from '@portabletext/react'
 import { urlForImage } from '@/sanity/lib/image'
 import Link from 'next/link'
+import Image from 'next/image'
 import { AnimatedSection } from '@/components/AnimatedSection'
 
 export const revalidate = 60
@@ -32,8 +33,8 @@ export default async function ProjectPage({
           <img
             alt={value.alt || ' '}
             loading="lazy"
-            src={urlForImage(value).url()}
-            className="w-full my-8 bg-black/5 dark:bg-white/5 object-cover"
+            src={urlForImage(value).width(1600).quality(85).url()}
+            className="w-full my-8 bg-black/5 dark:bg-white/5 object-cover rounded-xl"
           />
         )
       },
@@ -96,10 +97,13 @@ export default async function ProjectPage({
       {/* Main Image */}
       {project.mainImage && (
         <AnimatedSection delay={0.1} className="aspect-[16/9] md:aspect-[21/9] w-full mb-16 overflow-hidden bg-black/5 dark:bg-white/5 relative group rounded-2xl">
-          <img
-            src={urlForImage(project.mainImage).url()}
+          <Image
+            src={urlForImage(project.mainImage).width(2400).quality(90).url()}
             alt={project.mainImage.alt || project.title}
-            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            fill
+            sizes="100vw"
+            priority
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
         </AnimatedSection>
       )}
@@ -155,7 +159,7 @@ export default async function ProjectPage({
                      />
                    ) : (
                      <img
-                        src={urlForImage(image).url()}
+                        src={urlForImage(image).width(2000).quality(90).url()}
                         alt={image.alt || `Gallery image ${index + 1}`}
                         className="w-full transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                      />

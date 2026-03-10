@@ -25,15 +25,7 @@ export default defineType({
       name: 'category',
       title: 'Category',
       type: 'string',
-      options: {
-        list: [
-          { title: 'Web Design', value: 'web-design' },
-          { title: 'Web Development', value: 'web-development' },
-          { title: 'Festival Installation', value: 'festival-installation' },
-          { title: 'Photography', value: 'photography' },
-          { title: 'Mixed Media', value: 'mixed-media' },
-        ],
-      },
+      description: 'The primary category of the project (e.g. Festival Installation, Creative Technology, etc)',
       validation: Rule => Rule.required(),
     }),
     defineField({
