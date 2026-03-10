@@ -1,94 +1,161 @@
-'use client'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
+import { getAboutData } from '@/sanity/lib/api'
+import { urlForImage } from '@/sanity/lib/image'
+import { PortableText } from '@portabletext/react'
+import { AnimatedSection } from '@/components/AnimatedSection'
 
-import { motion } from 'framer-motion'
+export const revalidate = 60
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const about = await getAboutData()
+
+  const title = about?.title || 'About Studio Pilz'
+  const email = about?.contactEmail || 'hello@studiopilz.com'
+
+  const components = {
+    block: {
+      normal: ({ children }: any) => <p className="mb-6 leading-relaxed text-lg text-zinc-800 dark:text-zinc-300">{children}</p>,
+    }
+  }
+
   return (
-    <main className="min-h-screen pt-32 pb-16 px-6">
-      <div className="max-w-4xl mx-auto">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-5xl md:text-7xl font-bold tracking-tighter mb-12"
+    <main className="min-h-screen pt-32 pb-24 px-6 max-w-5xl mx-auto overflow-hidden">
+      
+      {/* Header */}
+      <AnimatedSection className="mb-24 flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-black/10 dark:border-white/10 pb-12">
+        <h1 className="text-5xl md:text-8xl font-bold tracking-tighter leading-none">
+          {title}
+        </h1>
+        <a 
+          href={`mailto:${email}`}
+          className="font-mono text-sm tracking-widest uppercase hover:underline underline-offset-4"
         >
-          About Studio Pilz
-        </motion.h1>
+          {email} ↗
+        </a>
+      </AnimatedSection>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="space-y-8 text-lg md:text-xl leading-relaxed text-zinc-600 dark:text-zinc-400"
-        >
-          <p>
-            Studio Pilz is a creative technology and design studio that exists
-            at the intersection of digital innovation and artistic expression.
-          </p>
-
-          <p>
-            We specialize in crafting immersive web experiences, developing
-            cutting-edge digital products, creating festival installations that
-            captivate audiences, and capturing moments through contemporary
-            photography.
-          </p>
-
-          <p>
-            Our approach combines technical expertise with a playful, futuristic
-            aesthetic—embracing minimalism while pushing the boundaries of what's
-            possible with modern web technologies like Three.js, React, and Next.js.
-          </p>
-
-          <p>
-            Each project is an opportunity to explore new creative territories,
-            experiment with emerging technologies, and deliver work that resonates
-            with Gen Z sensibilities while maintaining timeless design principles.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-16 pt-16 border-t border-zinc-200 dark:border-zinc-800"
-        >
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-6">
-            What We Do
-          </h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="font-semibold mb-2 uppercase tracking-wider text-sm">
-                Web Design & Development
-              </h3>
-              <p className="text-zinc-600 dark:text-zinc-400">
-                Creating beautiful, performant websites and digital experiences
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2 uppercase tracking-wider text-sm">
-                Festival Installations
-              </h3>
-              <p className="text-zinc-600 dark:text-zinc-400">
-                Immersive interactive experiences for events and festivals
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2 uppercase tracking-wider text-sm">
-                Photography
-              </h3>
-              <p className="text-zinc-600 dark:text-zinc-400">
-                Contemporary visual storytelling and documentation
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2 uppercase tracking-wider text-sm">
-                Creative Technology
-              </h3>
-              <p className="text-zinc-600 dark:text-zinc-400">
-                Exploring the intersection of art, design, and technology
-              </p>
-            </div>
+      <div className="flex flex-col gap-y-24">
+        
+        {/* Philosophy */}
+        <AnimatedSection className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight mb-2">Philosophy</h2>
+            <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
           </div>
-        </motion.div>
+          <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/80">
+            {about?.philosophy ? (
+              <PortableText value={about.philosophy} components={components} />
+            ) : (
+              <>
+                <p className="mb-6 leading-relaxed text-lg">
+                  Studio Pilz is a contemporary full-service creative agency that operates in the elusive spaces between technology, art, design, and physical installations. We refuse to be boxed into a single medium.
+                </p>
+                <p className="mb-6 leading-relaxed text-lg">
+                  Collaboration is central to our process. We function as a creative <strong>mycelial network</strong>—constantly connecting, sharing nutrients, and growing alongside a diverse ecosystem of artists, musicians, scientists, builders, and explorers.
+                </p>
+              </>
+            )}
+          </div>
+        </AnimatedSection>
+
+        {/* Artist Statement */}
+        <AnimatedSection delay={0.1} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight mb-2">Artist Statement</h2>
+            <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
+          </div>
+          <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/80">
+            {about?.artistStatement ? (
+              <PortableText value={about.artistStatement} components={components} />
+            ) : (
+              <p className="mb-6 leading-relaxed text-lg">
+                We believe that the most profound digital and physical experiences are those that seamlessly blur the lines between reality and imagination. By integrating cutting-edge frontend web technologies with immersive hardware, our works attempt to provoke awe and invite playful interaction, acting as a bridge to the surreal.
+              </p>
+            )}
+          </div>
+        </AnimatedSection>
+
+        {/* Exhibitions & Events */}
+        <AnimatedSection delay={0.2} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight mb-2">Exhibitions & Events</h2>
+            <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
+          </div>
+          <div className="space-y-4 font-mono text-sm tracking-wide">
+            {about?.exhibitions && about.exhibitions.length > 0 ? (
+              about.exhibitions.map((ex, i) => (
+                <div key={i} className="flex justify-between items-baseline border-b border-black/5 dark:border-white/5 pb-4">
+                  <div>
+                    <span className="opacity-50 mr-4">{ex.year}</span>
+                    <span className="font-semibold uppercase">{ex.name}</span>
+                  </div>
+                  <span className="opacity-70">{ex.location}</span>
+                </div>
+              ))
+            ) : (
+              <>
+                <div className="flex justify-between items-baseline border-b border-black/5 dark:border-white/5 pb-4">
+                  <div><span className="opacity-50 mr-4">2024</span><span className="font-semibold uppercase">Lumina Festival of Lights</span></div>
+                  <span className="opacity-70">Berlin, DE</span>
+                </div>
+                <div className="flex justify-between items-baseline border-b border-black/5 dark:border-white/5 pb-4">
+                  <div><span className="opacity-50 mr-4">2023</span><span className="font-semibold uppercase">Digital Mycology</span></div>
+                  <span className="opacity-70">London, UK</span>
+                </div>
+                <div className="flex justify-between items-baseline border-b border-black/5 dark:border-white/5 pb-4">
+                  <div><span className="opacity-50 mr-4">2022</span><span className="font-semibold uppercase">Echoes of the Network</span></div>
+                  <span className="opacity-70">New York, NY</span>
+                </div>
+              </>
+            )}
+          </div>
+        </AnimatedSection>
+
+        {/* Team Section */}
+        <AnimatedSection delay={0.3} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8 border-t border-black/10 dark:border-white/10 pt-24">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight mb-2">The Network</h2>
+            <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
+            <p className="mt-4 text-sm opacity-60">Key nodes in the Studio Pilz ecosystem.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            {about?.team && about.team.length > 0 ? (
+              about.team.map((member, i) => (
+                <div key={i} className="group">
+                  <div className="aspect-square w-full mb-4 overflow-hidden bg-black/5 dark:bg-white/5">
+                    {member.image && (
+                      <img 
+                        src={urlForImage(member.image).url()} 
+                        alt={member.name}
+                        className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                      />
+                    )}
+                  </div>
+                  <h3 className="text-lg font-bold">{member.name}</h3>
+                  <p className="font-mono text-xs tracking-widest uppercase opacity-50 mb-3">{member.role}</p>
+                  {member.bio && <p className="text-sm opacity-80 leading-relaxed">{member.bio}</p>}
+                </div>
+              ))
+            ) : (
+              <>
+                <div className="group">
+                  <div className="aspect-[4/5] w-full mb-4 overflow-hidden bg-black/10 dark:bg-white/10"></div>
+                  <h3 className="text-lg font-bold">Node 01</h3>
+                  <p className="font-mono text-xs tracking-widest uppercase opacity-50 mb-3">Creative Technologist</p>
+                  <p className="text-sm opacity-80 leading-relaxed">Specialising in real-time graphics and web experiences.</p>
+                </div>
+                <div className="group">
+                  <div className="aspect-[4/5] w-full mb-4 overflow-hidden bg-black/10 dark:bg-white/10"></div>
+                  <h3 className="text-lg font-bold">Node 02</h3>
+                  <p className="font-mono text-xs tracking-widest uppercase opacity-50 mb-3">Experience Designer</p>
+                  <p className="text-sm opacity-80 leading-relaxed">Translating conceptual networks into physical spaces.</p>
+                </div>
+              </>
+            )}
+          </div>
+        </AnimatedSection>
+        
       </div>
     </main>
   )

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
-import ThreeBackground from "@/components/ThreeBackground";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import GrainientBackground from "@/components/GrainientBackground";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,11 +21,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} font-sans antialiased bg-white text-black dark:bg-black dark:text-white`}>
-        <ThreeBackground />
-        <Navigation />
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased text-black dark:text-white`}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <GrainientBackground />
+          <Navigation />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

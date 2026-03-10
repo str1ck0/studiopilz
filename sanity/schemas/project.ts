@@ -86,6 +86,21 @@ export default defineType({
             },
           ],
         },
+        {
+          type: 'file',
+          name: 'video',
+          title: 'Video',
+          options: {
+            accept: 'video/*',
+          },
+          fields: [
+            {
+              name: 'caption',
+              type: 'string',
+              title: 'Caption',
+            },
+          ],
+        },
       ],
     }),
     defineField({

@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { Canvas, useThree } from '@react-three/fiber'
-import { useGLTF, Environment, Center } from '@react-three/drei'
+import { Canvas } from '@react-three/fiber'
+import { useGLTF, Center } from '@react-three/drei'
 import { useRef, useState, useEffect } from 'react'
 import { Group, MathUtils } from 'three'
 import { useFrame } from '@react-three/fiber'

@@ -1,26 +1,13 @@
-import { client } from '@/lib/sanity.client'
-import { urlForImage } from '@/lib/sanity.image'
-import Image from 'next/image'
-import Link from 'next/link'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
+import { getProjectBySlug } from '@/sanity/lib/api'
+import { notFound } from 'next/navigation'
 import { PortableText } from '@portabletext/react'
+import { urlForImage } from '@/sanity/lib/image'
+import Link from 'next/link'
+import { AnimatedSection } from '@/components/AnimatedSection'
 
-async function getProject(slug: string) {
-  const query = `*[_type == "project" && slug.current == $slug][0] {
-    _id,
-    title,
-    slug,
-    category,
-    year,
-    description,
-    longDescription,
-    mainImage,
-    gallery,
-    tags,
-    link
-  }`
-
-  return client.fetch(query, { slug })
-}
+export const revalidate = 60
 
 export default async function ProjectPage({
   params,
@@ -28,111 +15,163 @@ export default async function ProjectPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const project = await getProject(slug)
+  const project = await getProjectBySlug(slug)
 
   if (!project) {
-    return (
-      <main className="min-h-screen pt-32 pb-16 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl font-bold mb-4">Project not found</h1>
-          <Link href="/work" className="underline">
-            Back to work
-          </Link>
-        </div>
-      </main>
-    )
+    notFound()
+  }
+
+  // Custom components for Sanity PortableText
+  const components = {
+    types: {
+      image: ({ value }: any) => {
+        if (!value?.asset?._ref) {
+          return null
+        }
+        return (
+          <img
+            alt={value.alt || ' '}
+            loading="lazy"
+            src={urlForImage(value).url()}
+            className="w-full my-8 bg-black/5 dark:bg-white/5 object-cover"
+          />
+        )
+      },
+    },
+    block: {
+      normal: ({ children }: any) => <p className="mb-6 leading-relaxed text-lg text-zinc-800 dark:text-zinc-300">{children}</p>,
+      h2: ({ children }: any) => <h2 className="text-3xl font-bold mt-12 mb-6">{children}</h2>,
+      h3: ({ children }: any) => <h3 className="text-2xl font-bold mt-8 mb-4">{children}</h3>,
+      blockquote: ({ children }: any) => (
+        <blockquote className="border-l-4 border-black dark:border-white pl-6 my-8 italic text-xl">
+          {children}
+        </blockquote>
+      ),
+    },
+    marks: {
+      link: ({ value, children }: any) => {
+        const target = (value?.href || '').startsWith('http') ? '_blank' : undefined
+        return (
+          <a href={value?.href} target={target} rel={target === '_blank' ? 'noindex nofollow' : ''} className="underline underline-offset-4 decoration-black/30 dark:decoration-white/30 hover:decoration-black dark:hover:decoration-white transition-colors">
+            {children}
+          </a>
+        )
+      },
+    },
   }
 
   return (
-    <main className="min-h-screen pt-32 pb-16 px-6">
-      <div className="max-w-6xl mx-auto">
-        <Link
-          href="/work"
-          className="inline-block mb-8 text-sm tracking-wider opacity-50 hover:opacity-100 transition-opacity"
+    <article className="min-h-screen pt-32 pb-24 px-6 max-w-5xl mx-auto overflow-hidden">
+      <AnimatedSection className="mb-12">
+        <Link 
+          href="/" 
+          className="text-sm font-mono tracking-widest uppercase hover:underline underline-offset-4 mb-8 inline-block opacity-60 hover:opacity-100 transition-opacity"
         >
-          ← Back to Work
+          ← Back to work
         </Link>
-
-        <div className="space-y-8 mb-12">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-4">
-                {project.title}
-              </h1>
-              <p className="text-lg uppercase tracking-wider text-zinc-500">
-                {project.category} • {project.year}
-              </p>
-            </div>
+        <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-6 leading-tight">
+          {project.title}
+        </h1>
+        
+        <div className="flex flex-wrap gap-8 py-6 border-y border-black/10 dark:border-white/10 mt-8 font-mono text-sm uppercase tracking-widest">
+          <div>
+            <span className="block opacity-50 mb-1">Category</span>
+            {project.category.replace('-', ' ')}
           </div>
-
-          {project.description && (
-            <p className="text-xl text-zinc-600 dark:text-zinc-400 max-w-3xl">
-              {project.description}
-            </p>
-          )}
-
+          <div>
+            <span className="block opacity-50 mb-1">Year</span>
+            {project.year}
+          </div>
           {project.link && (
-            <a
-              href={project.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block px-6 py-3 border border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
-            >
-              Visit Project →
-            </a>
+            <div>
+              <span className="block opacity-50 mb-1">Link</span>
+              <a href={project.link} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                View Live ↗
+              </a>
+            </div>
           )}
         </div>
+      </AnimatedSection>
 
-        {project.mainImage && (
-          <div className="relative w-full aspect-[16/9] mb-12 bg-zinc-100 dark:bg-zinc-900">
-            <Image
-              src={urlForImage(project.mainImage).width(1920).height(1080).url()}
-              alt={project.title}
-              fill
-              className="object-cover"
-            />
-          </div>
-        )}
+      {/* Main Image */}
+      {project.mainImage && (
+        <AnimatedSection delay={0.1} className="aspect-[16/9] md:aspect-[21/9] w-full mb-16 overflow-hidden bg-black/5 dark:bg-white/5 relative group rounded-2xl">
+          <img
+            src={urlForImage(project.mainImage).url()}
+            alt={project.mainImage.alt || project.title}
+            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          />
+        </AnimatedSection>
+      )}
 
-        {project.longDescription && (
-          <div className="prose prose-lg dark:prose-invert max-w-3xl mb-12">
-            <PortableText value={project.longDescription} />
-          </div>
-        )}
-
-        {project.gallery && project.gallery.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {project.gallery.map((image: any, index: number) => (
-              <div
-                key={index}
-                className="relative w-full aspect-[4/3] bg-zinc-100 dark:bg-zinc-900"
-              >
-                <Image
-                  src={urlForImage(image).width(1200).height(900).url()}
-                  alt={image.alt || `${project.title} - Image ${index + 1}`}
-                  fill
-                  className="object-cover"
-                />
+      {/* Description Content */}
+      <AnimatedSection delay={0.2} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-12 mb-24">
+        <div>
+           <h3 className="text-xl font-bold mb-4">About the Project</h3>
+           <p className="text-lg text-foreground/70">
+             {project.description}
+           </p>
+           
+           {project.tags && project.tags.length > 0 && (
+              <div className="mt-8">
+                <h4 className="font-mono text-xs uppercase tracking-widest opacity-50 mb-3">Tags</h4>
+                <div className="flex flex-wrap gap-2">
+                  {project.tags.map(tag => (
+                    <span key={tag} className="px-3 py-1 bg-black/5 dark:bg-white/10 rounded-full text-xs font-mono">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
-        )}
+           )}
+        </div>
+        
+        <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/80">
+          {project.longDescription ? (
+            <PortableText value={project.longDescription} components={components} />
+          ) : (
+            <div className="space-y-6 text-lg text-foreground/80">
+             {project.description}
+            </div>
+          )}
+        </div>
+      </AnimatedSection>
 
-        {project.tags && project.tags.length > 0 && (
-          <div className="mt-12 flex flex-wrap gap-2">
-            {project.tags.map((tag: string) => (
-              <span
-                key={tag}
-                className="px-4 py-2 text-sm border border-zinc-300 dark:border-zinc-700"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-    </main>
+      {/* Gallery */}
+      {project.gallery && project.gallery.length > 0 && (
+        <div className="space-y-12 md:space-y-24">
+          {project.gallery.map((image: any, index: number) => (
+             <AnimatedSection key={index} className="w-full relative group">
+               <figure>
+                 <div className="overflow-hidden bg-black/5 dark:bg-white/5 rounded-2xl">
+                   {image._type === 'video' ? (
+                     <video
+                       src={image.url}
+                       autoPlay
+                       loop
+                       muted
+                       playsInline
+                       className="w-full transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                     />
+                   ) : (
+                     <img
+                        src={urlForImage(image).url()}
+                        alt={image.alt || `Gallery image ${index + 1}`}
+                        className="w-full transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                     />
+                   )}
+                 </div>
+                 {image.caption && (
+                   <figcaption className="mt-4 text-center font-mono text-xs uppercase tracking-widest opacity-60">
+                     {image.caption}
+                   </figcaption>
+                 )}
+               </figure>
+             </AnimatedSection>
+          ))}
+        </div>
+      )}
+    </article>
   )
 }
 
-export const revalidate = 60
