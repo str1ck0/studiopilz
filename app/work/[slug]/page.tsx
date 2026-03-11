@@ -7,6 +7,7 @@ import { urlForImage } from '@/sanity/lib/image'
 import Link from 'next/link'
 import Image from 'next/image'
 import { AnimatedSection } from '@/components/AnimatedSection'
+import { ProjectGallery } from '@/components/ProjectGallery'
 
 export const revalidate = 60
 
@@ -143,37 +144,9 @@ export default async function ProjectPage({
 
       {/* Gallery */}
       {project.gallery && project.gallery.length > 0 && (
-        <div className="space-y-12 md:space-y-24">
-          {project.gallery.map((image: any, index: number) => (
-             <AnimatedSection key={index} className="w-full relative group">
-               <figure>
-                 <div className="overflow-hidden bg-black/5 dark:bg-white/5 rounded-2xl">
-                   {image._type === 'video' ? (
-                     <video
-                       src={image.url}
-                       autoPlay
-                       loop
-                       muted
-                       playsInline
-                       className="w-full transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-                     />
-                   ) : (
-                     <img
-                        src={urlForImage(image).width(2000).quality(90).url()}
-                        alt={image.alt || `Gallery image ${index + 1}`}
-                        className="w-full transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-                     />
-                   )}
-                 </div>
-                 {image.caption && (
-                   <figcaption className="mt-4 text-center font-mono text-xs uppercase tracking-widest opacity-60">
-                     {image.caption}
-                   </figcaption>
-                 )}
-               </figure>
-             </AnimatedSection>
-          ))}
-        </div>
+        <AnimatedSection delay={0.3}>
+          <ProjectGallery items={project.gallery} />
+        </AnimatedSection>
       )}
     </article>
   )

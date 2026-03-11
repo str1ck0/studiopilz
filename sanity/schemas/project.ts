@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity'
+import { TagsInput } from '../components/TagsInput'
 
 export default defineType({
   name: 'project',
@@ -62,34 +63,37 @@ export default defineType({
       of: [
         {
           type: 'image',
-          options: {
-            hotspot: true,
+          options: { hotspot: true },
+          preview: {
+            select: { title: 'alt', subtitle: 'caption', media: 'asset' },
+            prepare({ title, subtitle, media }: { title?: string; subtitle?: string; media?: unknown }) {
+              return { title: title || 'Image', subtitle, media }
+            },
           },
           fields: [
-            {
-              name: 'alt',
-              type: 'string',
-              title: 'Alternative text',
-            },
-            {
-              name: 'caption',
-              type: 'string',
-              title: 'Caption',
-            },
+            { name: 'alt', type: 'string', title: 'Alternative text' },
+            { name: 'caption', type: 'string', title: 'Caption' },
           ],
         },
         {
           type: 'file',
           name: 'video',
           title: 'Video',
-          options: {
-            accept: 'video/*',
+          options: { accept: 'video/*' },
+          preview: {
+            select: { title: 'caption' },
+            prepare({ title }: { title?: string }) {
+              return { title: title || 'Video' }
+            },
           },
           fields: [
+            { name: 'caption', type: 'string', title: 'Caption' },
             {
-              name: 'caption',
-              type: 'string',
-              title: 'Caption',
+              name: 'poster',
+              type: 'image',
+              title: 'Preview thumbnail',
+              description: 'Custom thumbnail shown before the video plays. Use hotspot to choose the crop center.',
+              options: { hotspot: true },
             },
           ],
         },
@@ -106,8 +110,8 @@ export default defineType({
       title: 'Tags',
       type: 'array',
       of: [{ type: 'string' }],
-      options: {
-        layout: 'tags',
+      components: {
+        input: TagsInput,
       },
     }),
     defineField({
