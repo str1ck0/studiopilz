@@ -3,7 +3,13 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 
-export default function HomeHero() {
+interface HomeHeroProps {
+  subtitle: string
+  title: string
+  description: string
+}
+
+export default function HomeHero({ subtitle, title, description }: HomeHeroProps) {
   return (
     <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 overflow-hidden pt-32">
       
@@ -19,7 +25,7 @@ export default function HomeHero() {
           className="mb-6 inline-block"
         >
           <span className="font-mono text-xs md:text-sm uppercase tracking-[0.3em] opacity-60">
-            Creative Technology & Design
+            {subtitle}
           </span>
         </motion.div>
 
@@ -28,11 +34,8 @@ export default function HomeHero() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-        >
-          We build
-          <br />
-          <span className="italic font-light opacity-80">digital</span> spaces.
-        </motion.h1>
+          dangerouslySetInnerHTML={{ __html: title.replace(/\n/g, '<br />') }}
+        />
 
         <motion.p 
           className="text-lg md:text-2xl text-foreground/80 max-w-2xl mx-auto mb-12 leading-relaxed"
@@ -40,7 +43,7 @@ export default function HomeHero() {
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2, delay: 0.4 }}
         >
-          Studio Pilz is a contemporary full-service creative agency operating in the spaces between technology, art, design, and physical installations. We are a mycelial network of artists, musicians, scientists, and explorers.
+          {description}
         </motion.p>
 
         <motion.div
@@ -50,7 +53,7 @@ export default function HomeHero() {
           className="flex flex-col sm:flex-row items-center justify-center gap-6"
         >
           <Link 
-            href="#work" 
+            href="/work" 
             className="group relative px-8 py-4 bg-foreground text-background font-mono text-sm tracking-widest uppercase overflow-hidden"
           >
             <span className="relative z-10 transition-colors group-hover:text-foreground">Explore Work</span>

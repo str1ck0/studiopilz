@@ -41,3 +41,20 @@ export interface About {
   contactEmail?: string
   socialLinks?: SocialLink[]
 }
+
+export interface Homepage {
+  heroSubtitle?: string
+  heroTitle?: string
+  heroDescription?: string
+  workSectionTitle?: string
+  workSectionSubtitle?: string
+}
+
+export interface GuestbookEntry {
+  _id: string
+  _createdAt: string
+  authorName?: string
+  message?: string
+  drawingData?: string
+  paperColor: string
+}

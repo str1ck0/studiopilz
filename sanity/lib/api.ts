@@ -1,5 +1,17 @@
 import { client } from './client'
-import { Project, About } from '../../types'
+import { Project, About, Homepage } from '../../types'
+
+export async function getHomepageData(): Promise<Homepage> {
+  return client.fetch(`
+    *[_type == "homepage"][0] {
+      heroSubtitle,
+      heroTitle,
+      heroDescription,
+      workSectionTitle,
+      workSectionSubtitle
+    }
+  `)
+}
 
 export async function getProjects(): Promise<Project[]> {
   return client.fetch(`
@@ -47,6 +59,19 @@ export async function getAboutData(): Promise<About> {
       team,
       contactEmail,
       socialLinks
+    }
+  `)
+}
+
+export async function getGuestbookEntries(): Promise<import('../../types').GuestbookEntry[]> {
+  return client.fetch(`
+    *[_type == "guestbookEntry"] | order(_createdAt desc) {
+      _id,
+      _createdAt,
+      authorName,
+      message,
+      drawingData,
+      paperColor
     }
   `)
 }

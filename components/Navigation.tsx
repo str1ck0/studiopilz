@@ -69,7 +69,7 @@ export default function Navigation() {
               key={link.href}
               href={link.href}
               className={`text-sm tracking-wider uppercase font-medium transition-all hover:opacity-100 ${
-                pathname === link.href ? 'opacity-100 border-b border-current pb-1' : 'opacity-50'
+                (link.href === '/' ? pathname === '/' : pathname.startsWith(link.href)) ? 'opacity-100 border-b border-current pb-1' : 'opacity-50'
               }`}
             >
               {link.label}

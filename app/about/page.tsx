@@ -1,14 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
-import { getAboutData } from '@/sanity/lib/api'
+import { getAboutData, getGuestbookEntries } from '@/sanity/lib/api'
 import { urlForImage } from '@/sanity/lib/image'
 import { PortableText } from '@portabletext/react'
 import { AnimatedSection } from '@/components/AnimatedSection'
+import DrawingPad from '@/components/DrawingPad'
+import GuestbookGallery from '@/components/GuestbookGallery'
 
 export const revalidate = 60
 
 export default async function AboutPage() {
   const about = await getAboutData()
+  const guestbookEntries = await getGuestbookEntries()
 
   const title = about?.title || 'About Studio Pilz'
   const email = about?.contactEmail || 'hello@studiopilz.com'
@@ -157,6 +160,16 @@ export default async function AboutPage() {
         </AnimatedSection>
         
       </div>
+
+      {/* Interactive Guestbook / Drawing Pad Section */}
+      <AnimatedSection delay={0.4} className="mt-32 pt-16 border-t border-black/10 dark:border-white/10 w-full relative z-10">
+        
+        <DrawingPad />
+        
+        <GuestbookGallery entries={guestbookEntries} />
+        
+      </AnimatedSection>
+
     </main>
   )
 }
