@@ -22,7 +22,11 @@
     "next-themes": "^0.4.6",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+<<<<<<< HEAD
     "sanity": "^4.19.0",
+=======
+    "sanity": "^3.99.0",
+>>>>>>> 6fe2c2d (update npm)
     "styled-components": "^6.1.19",
     "three": "^0.181.2"
   },
