@@ -66,7 +66,7 @@ export default defineType({
           options: { hotspot: true },
           preview: {
             select: { title: 'alt', subtitle: 'caption', media: 'asset' },
-            prepare({ title, subtitle, media }: { title?: string; subtitle?: string; media?: unknown }) {
+            prepare({ title, subtitle, media }: { title?: string; subtitle?: string; media?: any }) {
               return { title: title || 'Image', subtitle, media }
             },
           },
