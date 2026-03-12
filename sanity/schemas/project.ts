@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { TagsInput } from '../components/TagsInput'
+import { GalleryInput } from '../components/GalleryInput'
 
 export default defineType({
   name: 'project',
@@ -60,6 +61,9 @@ export default defineType({
       name: 'gallery',
       title: 'Gallery',
       type: 'array',
+      components: {
+        input: GalleryInput,
+      },
       of: [
         {
           type: 'image',
@@ -140,10 +144,13 @@ export default defineType({
       initialValue: false,
     }),
     defineField({
-      name: 'order',
-      title: 'Display Order',
-      type: 'number',
-      description: 'Lower numbers appear first. Leave empty to fall back to year.',
+      name: 'projectDate',
+      title: 'Project Date',
+      type: 'date',
+      description: 'Month and year of the project — used to order projects.',
+      options: {
+        dateFormat: 'MMMM YYYY',
+      },
     }),
   ],
   preview: {

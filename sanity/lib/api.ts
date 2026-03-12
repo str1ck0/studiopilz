@@ -15,7 +15,7 @@ export async function getHomepageData(): Promise<Homepage> {
 
 export async function getProjects(): Promise<Project[]> {
   return client.fetch(`
-    *[_type == "project"] | order(order asc, year desc) {
+    *[_type == "project"] | order(projectDate desc, year desc) {
       _id,
       title,
       "slug": slug.current,
