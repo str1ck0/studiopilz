@@ -37,7 +37,7 @@ function MotionIndicator({ active }: { active: boolean }) {
   )
 }
 
-function VideoItem({ item, className }: { item: GalleryItem; className: string }) {
+function VideoItem({ item, style }: { item: GalleryItem; style?: React.CSSProperties }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [playing, setPlaying] = useState(false)
 
@@ -63,7 +63,8 @@ function VideoItem({ item, className }: { item: GalleryItem; className: string }
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl bg-black/10 dark:bg-white/5 cursor-pointer ${className}`}
+      className="relative overflow-hidden rounded-2xl bg-black/10 dark:bg-white/5 cursor-pointer w-full"
+      style={style}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -78,13 +79,11 @@ function VideoItem({ item, className }: { item: GalleryItem; className: string }
         style={{ objectPosition: item.previewPosition || 'center' }}
       />
 
-      {/* Subtle dark overlay when paused */}
       <div
         className="absolute inset-0 bg-black/20 transition-opacity duration-300 pointer-events-none"
         style={{ opacity: playing ? 0 : 1 }}
       />
 
-      {/* Motion indicator badge */}
       <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-sm rounded-full px-2 py-1.5 pointer-events-none">
         <MotionIndicator active={playing} />
       </div>
@@ -101,9 +100,12 @@ function VideoItem({ item, className }: { item: GalleryItem; className: string }
   )
 }
 
-function ImageItem({ item, index, className }: { item: GalleryItem; index: number; className: string }) {
+function ImageItem({ item, index, style }: { item: GalleryItem; index: number; style?: React.CSSProperties }) {
   return (
-    <div className={`relative overflow-hidden rounded-2xl bg-black/5 dark:bg-white/5 group ${className}`}>
+    <div
+      className="relative overflow-hidden rounded-2xl bg-black/5 dark:bg-white/5 group w-full"
+      style={style}
+    >
       <img
         src={urlForImage(item).width(1400).quality(90).url()}
         alt={item.alt || `Gallery image ${index + 1}`}
@@ -118,40 +120,68 @@ function ImageItem({ item, index, className }: { item: GalleryItem; index: numbe
   )
 }
 
-// Desktop (3-col): videos full row, every 5th image is large
-function getDesktopSpan(index: number, total: number, isVideo: boolean): string {
-  if (isVideo) return 'md:col-span-3 md:row-span-2'
-  if (total === 1) return 'md:col-span-3 md:row-span-2'
-  const posInGroup = index % 5
-  if (posInGroup === 0) return 'md:col-span-2 md:row-span-2'
-  if (posInGroup === 2 && total - index > 2) return 'md:col-span-1 md:row-span-2'
-  return 'md:col-span-1 md:row-span-1'
+type MobileRow =
+  | { kind: 'video'; item: GalleryItem; index: number }
+  | { kind: 'single'; item: GalleryItem; index: number }
+  | { kind: 'pair'; a: GalleryItem; aIndex: number; b: GalleryItem; bIndex: number }
+
+function buildMobileRows(items: GalleryItem[]): MobileRow[] {
+  const rows: MobileRow[] = []
+  let i = 0
+  while (i < items.length) {
+    if (items[i]._type === 'video') {
+      rows.push({ kind: 'video', item: items[i], index: i })
+      i++
+    } else if (items[i + 1] && items[i + 1]._type !== 'video') {
+      rows.push({ kind: 'pair', a: items[i], aIndex: i, b: items[i + 1], bIndex: i + 1 })
+      i += 2
+    } else {
+      rows.push({ kind: 'single', item: items[i], index: i })
+      i++
+    }
+  }
+  return rows
 }
 
-// Mobile: pre-compute spans so images are always paired — no orphan gaps
-function computeMobileSpans(items: GalleryItem[]): string[] {
+// Desktop bento: process consecutive image runs so every item matches its neighbour's height.
+// Pattern tiles: 1 item → full-width; 2 items → narrow-left + wide-right (same rows);
+// 3+ items → wide-left (3 rows) | small-top-right | tall-bottom-right (repeating).
+function computeDesktopSpans(items: GalleryItem[]): string[] {
   const spans: string[] = new Array(items.length)
   let i = 0
 
   while (i < items.length) {
-    const isVideo = items[i]._type === 'video'
-
-    if (isVideo) {
-      spans[i] = 'col-span-2 row-span-2'
+    if (items[i]._type === 'video') {
+      spans[i] = 'col-span-3 row-span-3'
       i++
-    } else {
-      const nextIsImage = items[i + 1] && items[i + 1]._type !== 'video'
-      if (nextIsImage) {
-        // Pair them side by side
-        spans[i] = 'col-span-1 row-span-1'
-        spans[i + 1] = 'col-span-1 row-span-1'
-        i += 2
+      continue
+    }
+
+    // Find the end of this run of non-video images
+    let runEnd = i
+    while (runEnd < items.length && items[runEnd]._type !== 'video') runEnd++
+
+    // Tile the run
+    let j = i
+    while (j < runEnd) {
+      const rem = runEnd - j
+      if (rem === 1) {
+        spans[j] = 'col-span-3 row-span-2'
+        j += 1
+      } else if (rem === 2) {
+        // Narrow left + wide right — same row-span so heights match
+        spans[j]     = 'col-span-1 row-span-2'
+        spans[j + 1] = 'col-span-2 row-span-2'
+        j += 2
       } else {
-        // Lone image — full width with extra height
-        spans[i] = 'col-span-2 row-span-2'
-        i++
+        // 3-item bento block — tiles perfectly with no gaps
+        spans[j]     = 'col-span-2 row-span-3'  // big left
+        spans[j + 1] = 'col-span-1 row-span-1'  // small top-right
+        spans[j + 2] = 'col-span-1 row-span-2'  // medium bottom-right
+        j += 3
       }
     }
+    i = runEnd
   }
 
   return spans
@@ -160,23 +190,63 @@ function computeMobileSpans(items: GalleryItem[]): string[] {
 export function ProjectGallery({ items }: { items: GalleryItem[] }) {
   if (!items || items.length === 0) return null
 
-  const mobileSpans = computeMobileSpans(items)
+  const mobileRows = buildMobileRows(items)
+  const desktopSpans = computeDesktopSpans(items)
 
   return (
-    <div
-      className="grid grid-cols-2 md:grid-cols-3 gap-3"
-      style={{ gridAutoRows: 'clamp(140px, 22vw, 200px)' }}
-    >
-      {items.map((item, index) => {
-        const isVideo = item._type === 'video'
-        const spanClass = `${mobileSpans[index]} ${getDesktopSpan(index, items.length, isVideo)}`
+    <>
+      {/* ── Mobile layout: flex rows with natural aspect ratios ── */}
+      <div className="flex flex-col gap-3 md:hidden">
+        {mobileRows.map((row, rowIdx) => {
+          if (row.kind === 'video') {
+            return (
+              <div key={rowIdx} style={{ aspectRatio: '16/9' }}>
+                <VideoItem item={row.item} style={{ height: '100%' }} />
+              </div>
+            )
+          }
+          if (row.kind === 'single') {
+            return (
+              <div key={rowIdx} style={{ aspectRatio: '4/3' }}>
+                <ImageItem item={row.item} index={row.index} style={{ height: '100%' }} />
+              </div>
+            )
+          }
+          // pair
+          return (
+            <div key={rowIdx} className="flex gap-3" style={{ aspectRatio: '2/1' }}>
+              <div className="flex-1">
+                <ImageItem item={row.a} index={row.aIndex} style={{ height: '100%' }} />
+              </div>
+              <div className="flex-1">
+                <ImageItem item={row.b} index={row.bIndex} style={{ height: '100%' }} />
+              </div>
+            </div>
+          )
+        })}
+      </div>
 
-        if (isVideo) {
-          return <VideoItem key={index} item={item} className={spanClass} />
-        }
-
-        return <ImageItem key={index} item={item} index={index} className={spanClass} />
-      })}
-    </div>
+      {/* ── Desktop layout: bento grid ── */}
+      <div
+        className="hidden md:grid md:grid-cols-3 gap-3"
+        style={{ gridAutoRows: 'clamp(120px, 18vw, 180px)' }}
+      >
+        {items.map((item, index) => {
+          const spanClass = desktopSpans[index]
+          if (item._type === 'video') {
+            return (
+              <div key={index} className={spanClass}>
+                <VideoItem item={item} style={{ height: '100%' }} />
+              </div>
+            )
+          }
+          return (
+            <div key={index} className={spanClass}>
+              <ImageItem item={item} index={index} style={{ height: '100%' }} />
+            </div>
+          )
+        })}
+      </div>
+    </>
   )
 }
