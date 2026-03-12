@@ -11,6 +11,7 @@ type GalleryItem = {
   caption?: string
   asset?: { _ref: string }
   poster?: { asset?: { _ref: string }; hotspot?: unknown }
+  previewPosition?: string
 }
 
 // Animated bars — indicates "this is a video" without being a play button
@@ -74,6 +75,7 @@ function VideoItem({ item, className }: { item: GalleryItem; className: string }
         playsInline
         loop
         className="w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"
+        style={{ objectPosition: item.previewPosition || 'center' }}
       />
 
       {/* Subtle dark overlay when paused */}
@@ -116,7 +118,7 @@ function ImageItem({ item, index, className }: { item: GalleryItem; index: numbe
   )
 }
 
-// Videos always span the full row
+// Desktop (3-col): videos full row, every 5th image is large
 function getDesktopSpan(index: number, total: number, isVideo: boolean): string {
   if (isVideo) return 'md:col-span-3 md:row-span-2'
   if (total === 1) return 'md:col-span-3 md:row-span-2'
@@ -126,17 +128,39 @@ function getDesktopSpan(index: number, total: number, isVideo: boolean): string 
   return 'md:col-span-1 md:row-span-1'
 }
 
-function getMobileSpan(index: number, total: number, isVideo: boolean): string {
-  if (isVideo) return 'col-span-2 row-span-2'
-  if (total === 1) return 'col-span-2 row-span-2'
-  const posInGroup = index % 3
-  // Wide items get row-span-2 on mobile for more height
-  if (posInGroup === 0) return 'col-span-2 row-span-2'
-  return 'col-span-1 row-span-1'
+// Mobile: pre-compute spans so images are always paired — no orphan gaps
+function computeMobileSpans(items: GalleryItem[]): string[] {
+  const spans: string[] = new Array(items.length)
+  let i = 0
+
+  while (i < items.length) {
+    const isVideo = items[i]._type === 'video'
+
+    if (isVideo) {
+      spans[i] = 'col-span-2 row-span-2'
+      i++
+    } else {
+      const nextIsImage = items[i + 1] && items[i + 1]._type !== 'video'
+      if (nextIsImage) {
+        // Pair them side by side
+        spans[i] = 'col-span-1 row-span-1'
+        spans[i + 1] = 'col-span-1 row-span-1'
+        i += 2
+      } else {
+        // Lone image — full width with extra height
+        spans[i] = 'col-span-2 row-span-2'
+        i++
+      }
+    }
+  }
+
+  return spans
 }
 
 export function ProjectGallery({ items }: { items: GalleryItem[] }) {
   if (!items || items.length === 0) return null
+
+  const mobileSpans = computeMobileSpans(items)
 
   return (
     <div
@@ -145,7 +169,7 @@ export function ProjectGallery({ items }: { items: GalleryItem[] }) {
     >
       {items.map((item, index) => {
         const isVideo = item._type === 'video'
-        const spanClass = `${getMobileSpan(index, items.length, isVideo)} ${getDesktopSpan(index, items.length, isVideo)}`
+        const spanClass = `${mobileSpans[index]} ${getDesktopSpan(index, items.length, isVideo)}`
 
         if (isVideo) {
           return <VideoItem key={index} item={item} className={spanClass} />

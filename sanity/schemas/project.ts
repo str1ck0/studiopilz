@@ -89,11 +89,25 @@ export default defineType({
           fields: [
             { name: 'caption', type: 'string', title: 'Caption' },
             {
-              name: 'poster',
-              type: 'image',
-              title: 'Preview thumbnail',
-              description: 'Custom thumbnail shown before the video plays. Use hotspot to choose the crop center.',
-              options: { hotspot: true },
+              name: 'previewPosition',
+              type: 'string',
+              title: 'Preview crop position',
+              description: 'Which part of the video frame to show in the gallery tile.',
+              options: {
+                list: [
+                  { title: 'Center (default)', value: 'center' },
+                  { title: 'Top', value: 'top' },
+                  { title: 'Bottom', value: 'bottom' },
+                  { title: 'Left', value: 'left' },
+                  { title: 'Right', value: 'right' },
+                  { title: 'Top left', value: 'top left' },
+                  { title: 'Top right', value: 'top right' },
+                  { title: 'Bottom left', value: 'bottom left' },
+                  { title: 'Bottom right', value: 'bottom right' },
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'center',
             },
           ],
         },
@@ -124,6 +138,12 @@ export default defineType({
       title: 'Featured Project',
       type: 'boolean',
       initialValue: false,
+    }),
+    defineField({
+      name: 'order',
+      title: 'Display Order',
+      type: 'number',
+      description: 'Lower numbers appear first. Leave empty to fall back to year.',
     }),
   ],
   preview: {
