@@ -18,11 +18,17 @@ export interface Project {
   featured?: boolean
 }
 
+export interface CvEntry {
+  year: string
+  description: string
+}
+
 export interface TeamMember {
   name: string
   role: string
   image: any
   bio?: any[]
+  cvEntries?: CvEntry[]
 }
 
 export interface Exhibition {
@@ -36,10 +42,17 @@ export interface SocialLink {
   url: string
 }
 
+export interface SiteSettings {
+  contactEmail?: string
+  socialLinks?: SocialLink[]
+}
+
 export interface About {
   title: string
   philosophy?: any[]
+  philosophyImage?: any
   artistStatement?: any[]
+  artistStatementImage?: any
   exhibitions?: Exhibition[]
   team?: TeamMember[]
   skills?: string[]
@@ -49,12 +62,8 @@ export interface About {
 }
 
 export interface Homepage {
-  heroSubtitle?: string
-  heroTitle?: string
-  heroDescription?: string
   heroVideo?: any
   workSectionTitle?: string
-  workSectionSubtitle?: string
 }
 
 export interface GuestbookEntry {

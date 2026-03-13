@@ -1,15 +1,11 @@
 import { client } from './client'
-import { Project, About, Homepage } from '../../types'
+import { Project, About, Homepage, SiteSettings } from '../../types'
 
 export async function getHomepageData(): Promise<Homepage> {
   return client.fetch(`
     *[_type == "homepage"][0] {
-      heroSubtitle,
-      heroTitle,
-      heroDescription,
       "heroVideo": heroVideo.asset->url,
-      workSectionTitle,
-      workSectionSubtitle
+      workSectionTitle
     }
   `)
 }
@@ -59,11 +55,22 @@ export async function getAboutData(): Promise<About> {
     *[_type == "about"][0] {
       title,
       philosophy,
+      "philosophyImage": philosophyImage{..., "url": asset->url},
       artistStatement,
+      "artistStatementImage": artistStatementImage{..., "url": asset->url},
       exhibitions,
-      team,
+      team[]{..., cvEntries[]},
       skills,
       teamPhotos[]{..., "url": asset->url},
+      contactEmail,
+      socialLinks
+    }
+  `)
+}
+
+export async function getSiteSettings(): Promise<SiteSettings> {
+  return client.fetch(`
+    *[_type == "siteSettings"][0] {
       contactEmail,
       socialLinks
     }
