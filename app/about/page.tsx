@@ -130,27 +130,27 @@ export default async function AboutPage() {
           <div className="space-y-4 font-mono text-sm tracking-wide">
             {about?.exhibitions && about.exhibitions.length > 0 ? (
               about.exhibitions.map((ex, i) => (
-                <div key={i} className="flex justify-between items-baseline border-b border-black/5 dark:border-white/5 pb-4">
+                <div key={i} className="border-b border-black/5 dark:border-white/5 pb-4 flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-baseline">
                   <div>
                     <span className="opacity-50 mr-4">{ex.year}</span>
                     <span className="font-semibold uppercase">{ex.name}</span>
                   </div>
-                  <span className="opacity-70">{ex.location}</span>
+                  <span className="opacity-70 pl-0 sm:pl-4 shrink-0">{ex.location}</span>
                 </div>
               ))
             ) : (
               <>
-                <div className="flex justify-between items-baseline border-b border-black/5 dark:border-white/5 pb-4">
+                <div className="border-b border-black/5 dark:border-white/5 pb-4 flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-baseline">
                   <div><span className="opacity-50 mr-4">2024</span><span className="font-semibold uppercase">Lumina Festival of Lights</span></div>
-                  <span className="opacity-70">Berlin, DE</span>
+                  <span className="opacity-70 shrink-0">Berlin, DE</span>
                 </div>
-                <div className="flex justify-between items-baseline border-b border-black/5 dark:border-white/5 pb-4">
+                <div className="border-b border-black/5 dark:border-white/5 pb-4 flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-baseline">
                   <div><span className="opacity-50 mr-4">2023</span><span className="font-semibold uppercase">Digital Mycology</span></div>
-                  <span className="opacity-70">London, UK</span>
+                  <span className="opacity-70 shrink-0">London, UK</span>
                 </div>
-                <div className="flex justify-between items-baseline border-b border-black/5 dark:border-white/5 pb-4">
+                <div className="border-b border-black/5 dark:border-white/5 pb-4 flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-baseline">
                   <div><span className="opacity-50 mr-4">2022</span><span className="font-semibold uppercase">Echoes of the Network</span></div>
-                  <span className="opacity-70">New York, NY</span>
+                  <span className="opacity-70 shrink-0">New York, NY</span>
                 </div>
               </>
             )}
