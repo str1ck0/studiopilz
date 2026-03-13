@@ -50,12 +50,21 @@ export default async function AboutPage() {
       <div className="flex flex-col gap-y-24">
 
         {/* Philosophy */}
-        <AnimatedSection className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8">
+        <AnimatedSection className="flex flex-col gap-y-6">
           <div>
             <h2 className="text-xl font-bold tracking-tight mb-2">Philosophy</h2>
             <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
           </div>
-          <div>
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8 items-start">
+            {about?.philosophyImage?.url && (
+              <div className="overflow-hidden rounded">
+                <img
+                  src={about.philosophyImage.url}
+                  alt="Philosophy"
+                  className="w-full object-cover"
+                />
+              </div>
+            )}
             <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/80">
               {about?.philosophy ? (
                 <PortableText value={about.philosophy as any} components={components} />
@@ -73,25 +82,25 @@ export default async function AboutPage() {
                 </>
               )}
             </div>
-            {about?.philosophyImage?.url && (
-              <div className="mt-8 overflow-hidden rounded">
-                <img
-                  src={about.philosophyImage.url}
-                  alt="Philosophy"
-                  className="w-full object-cover"
-                />
-              </div>
-            )}
           </div>
         </AnimatedSection>
 
         {/* Artist Statement */}
-        <AnimatedSection delay={0.1} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8">
+        <AnimatedSection delay={0.1} className="flex flex-col gap-y-6">
           <div>
             <h2 className="text-xl font-bold tracking-tight mb-2">Artist Statement</h2>
             <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
           </div>
-          <div>
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8 items-start">
+            {about?.artistStatementImage?.url && (
+              <div className="overflow-hidden rounded">
+                <img
+                  src={about.artistStatementImage.url}
+                  alt="Artist Statement"
+                  className="w-full object-cover"
+                />
+              </div>
+            )}
             <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/80">
               {about?.artistStatement ? (
                 <PortableText value={about.artistStatement as any} components={components} />
@@ -109,15 +118,6 @@ export default async function AboutPage() {
                 </>
               )}
             </div>
-            {about?.artistStatementImage?.url && (
-              <div className="mt-8 overflow-hidden rounded">
-                <img
-                  src={about.artistStatementImage.url}
-                  alt="Artist Statement"
-                  className="w-full object-cover"
-                />
-              </div>
-            )}
           </div>
         </AnimatedSection>
 
@@ -209,9 +209,11 @@ export default async function AboutPage() {
                     </details>
                   )}
                   {member.cvEntries && member.cvEntries.length > 0 && (
-                    <div className="mt-6 border-t border-foreground/10 pt-4">
-                      <p className="font-mono text-xs tracking-widest uppercase opacity-40 mb-3">CV</p>
-                      <div className="space-y-2">
+                    <details className="mt-4 cursor-pointer outline-none">
+                      <summary className="font-semibold select-none list-none text-foreground/60 hover:text-foreground transition-colors flex items-center gap-2 text-sm border-t border-foreground/10 pt-4">
+                        CV ↗
+                      </summary>
+                      <div className="mt-4 space-y-2">
                         {member.cvEntries.map((entry, j) => (
                           <div key={j} className="flex gap-4 text-sm">
                             <span className="font-mono text-xs opacity-50 shrink-0 pt-0.5 w-20">{entry.year}</span>
@@ -219,7 +221,7 @@ export default async function AboutPage() {
                           </div>
                         ))}
                       </div>
-                    </div>
+                    </details>
                   )}
                 </div>
               ))

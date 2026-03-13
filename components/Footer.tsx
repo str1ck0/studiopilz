@@ -11,7 +11,7 @@ export default function Footer({ settings }: { settings: SiteSettings | null }) 
 
   return (
     <footer className="border-t border-foreground/10 mt-24 px-6 py-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 font-mono text-xs tracking-widest uppercase opacity-60">
-      <span>© Studio Pilz 2025</span>
+      <span>© Studio Pilz 2026</span>
       <div className="flex gap-8">
         {socials.map((link) => (
           <a

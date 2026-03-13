@@ -20,19 +20,15 @@ export default function ProjectListCard({ project }: { project: Project }) {
           {/* Main Image */}
           <div className="relative w-full md:w-48 h-48 md:h-full shrink-0 overflow-hidden bg-foreground/5">
             {project.mainImage && (
-              <motion.div 
-                className="w-full h-full relative"
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }}
-              >
+              <div className="w-full h-full relative">
                 <Image
                   src={urlForImage(project.mainImage).width(600).url()}
                   alt={project.mainImage.alt || project.title}
                   fill
-                  className="object-cover transform transition-transform duration-700 group-hover:scale-105"
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, 300px"
                 />
-              </motion.div>
+              </div>
             )}
           </div>
 

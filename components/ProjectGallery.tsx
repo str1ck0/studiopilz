@@ -195,30 +195,30 @@ export function ProjectGallery({ items }: { items: GalleryItem[] }) {
 
   return (
     <>
-      {/* ── Mobile layout: flex rows with natural aspect ratios ── */}
+      {/* ── Mobile layout: explicit heights so object-cover works reliably ── */}
       <div className="flex flex-col gap-3 md:hidden">
         {mobileRows.map((row, rowIdx) => {
           if (row.kind === 'video') {
             return (
-              <div key={rowIdx} style={{ aspectRatio: '16/9' }}>
+              <div key={rowIdx} className="h-52">
                 <VideoItem item={row.item} style={{ height: '100%' }} />
               </div>
             )
           }
           if (row.kind === 'single') {
             return (
-              <div key={rowIdx} style={{ aspectRatio: '4/3' }}>
+              <div key={rowIdx} className="h-64">
                 <ImageItem item={row.item} index={row.index} style={{ height: '100%' }} />
               </div>
             )
           }
           // pair
           return (
-            <div key={rowIdx} className="flex gap-3" style={{ aspectRatio: '2/1' }}>
-              <div className="flex-1">
+            <div key={rowIdx} className="flex gap-3 h-48">
+              <div className="flex-1 h-full">
                 <ImageItem item={row.a} index={row.aIndex} style={{ height: '100%' }} />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 h-full">
                 <ImageItem item={row.b} index={row.bIndex} style={{ height: '100%' }} />
               </div>
             </div>
