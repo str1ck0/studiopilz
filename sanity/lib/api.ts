@@ -57,6 +57,7 @@ export async function getAboutData(): Promise<About> {
       artistStatement,
       exhibitions,
       team,
+      teamPhotos[]{..., "url": asset->url},
       contactEmail,
       socialLinks
     }

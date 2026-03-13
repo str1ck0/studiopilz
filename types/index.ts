@@ -38,6 +38,7 @@ export interface About {
   artistStatement?: any[]
   exhibitions?: Exhibition[]
   team?: TeamMember[]
+  teamPhotos?: { asset: any; alt?: string; caption?: string }[]
   contactEmail?: string
   socialLinks?: SocialLink[]
 }
