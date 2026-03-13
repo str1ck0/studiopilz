@@ -18,6 +18,9 @@ const shareTechMono = Share_Tech_Mono({
 export const metadata: Metadata = {
   title: "Studio Pilz - Creative Technology & Design",
   description: "A creative technology and design studio specializing in web design, development, festival installations, and photography.",
+  icons: {
+    icon: '/icon.png',
+  },
 };
 
 export default function RootLayout({

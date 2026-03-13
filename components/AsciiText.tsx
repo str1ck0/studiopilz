@@ -148,10 +148,10 @@ class AsciiFilter {
     this.pre.style.width = '100%';
     this.pre.style.height = '100%';
     this.pre.style.overflow = 'hidden';
-    this.pre.style.display = 'flex';
-    this.pre.style.alignItems = 'center';
-    this.pre.style.justifyContent = 'center';
-    this.pre.style.textAlign = 'center';
+    this.pre.style.display = 'block';
+    this.pre.style.textAlign = 'center'; // Center the ASCII art horizontally
+    this.pre.style.whiteSpace = 'pre'; // CRITICAL: Preserve spaces exactly as rendered
+    this.pre.style.letterSpacing = '0px';
     this.pre.style.pointerEvents = 'none'; // pass clicks through to video
     
     // Hide the internal 2D canvas from DOM view:
@@ -311,7 +311,11 @@ class CanvAscii {
   }
   
   async init() {
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    this.renderer = new THREE.WebGLRenderer({ 
+      antialias: true, 
+      alpha: true,
+      preserveDrawingBuffer: true // CRITICAL: allows canvas.drawImage readback
+    });
     this.renderer.setPixelRatio(PX_RATIO);
     this.renderer.setSize(this.width, this.height);
     
@@ -320,6 +324,9 @@ class CanvAscii {
       fontSize: this.asciiFontSize,
       invert: true
     });
+    // CRITICAL: Initialize the grid size so it doesn't default to 300x150
+    this.filter.setSize(this.width, this.height);
+    
     this.container.appendChild(this.filter.domElement);
     
     // We already load Share Tech Mono in Next.js layout, so we don't strictly need document.fonts.load fallback here
