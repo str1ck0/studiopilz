@@ -7,7 +7,6 @@ import dynamic from 'next/dynamic'
 const ASCIIText = dynamic(() => import('./AsciiText'), { ssr: false })
 
 interface HomeHeroProps {
-  subtitle: string
   videoUrl?: string
 }
 

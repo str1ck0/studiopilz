@@ -57,12 +57,8 @@ export interface About {
 }
 
 export interface Homepage {
-  heroSubtitle?: string
-  heroTitle?: string
-  heroDescription?: string
   heroVideo?: any
   workSectionTitle?: string
-  workSectionSubtitle?: string
 }
 
 export interface GuestbookEntry {

@@ -4,12 +4,8 @@ import { Project, About, Homepage } from '../../types'
 export async function getHomepageData(): Promise<Homepage> {
   return client.fetch(`
     *[_type == "homepage"][0] {
-      heroSubtitle,
-      heroTitle,
-      heroDescription,
       "heroVideo": heroVideo.asset->url,
-      workSectionTitle,
-      workSectionSubtitle
+      workSectionTitle
     }
   `)
 }
