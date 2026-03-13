@@ -17,7 +17,7 @@ export default async function WorkPage() {
       <div className="max-w-[1400px] mx-auto">
         <div className="mb-16 border-b border-foreground/10 pb-8 flex flex-col md:flex-row items-baseline justify-between gap-4">
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter">Projects</h1>
-          <span className="font-mono text-sm tracking-widest uppercase opacity-50">Selected Works — 2021-Present</span>
+          <span className="font-mono text-sm tracking-widest uppercase opacity-50">Selected Works</span>
         </div>
         
         <ProjectList projects={projects} />

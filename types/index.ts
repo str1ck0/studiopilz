@@ -18,11 +18,17 @@ export interface Project {
   featured?: boolean
 }
 
+export interface CvEntry {
+  year: string
+  description: string
+}
+
 export interface TeamMember {
   name: string
   role: string
   image: any
   bio?: any[]
+  cvEntries?: CvEntry[]
 }
 
 export interface Exhibition {
@@ -39,7 +45,9 @@ export interface SocialLink {
 export interface About {
   title: string
   philosophy?: any[]
+  philosophyImage?: any
   artistStatement?: any[]
+  artistStatementImage?: any
   exhibitions?: Exhibition[]
   team?: TeamMember[]
   skills?: string[]

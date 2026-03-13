@@ -59,9 +59,11 @@ export async function getAboutData(): Promise<About> {
     *[_type == "about"][0] {
       title,
       philosophy,
+      "philosophyImage": philosophyImage{..., "url": asset->url},
       artistStatement,
+      "artistStatementImage": artistStatementImage{..., "url": asset->url},
       exhibitions,
-      team,
+      team[]{..., cvEntries[]},
       skills,
       teamPhotos[]{..., "url": asset->url},
       contactEmail,

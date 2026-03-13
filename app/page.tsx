@@ -14,7 +14,7 @@ export default async function Home() {
   const heroDescription = homepageContent?.heroDescription || "Studio Pilz is a contemporary full-service creative agency operating in the spaces between technology, art, design, and physical installations."
   const heroVideo = homepageContent?.heroVideo
   const workSectionTitle = homepageContent?.workSectionTitle || 'Selected Works'
-  const workSectionSubtitle = homepageContent?.workSectionSubtitle || '2021—Present'
+  const workSectionSubtitle = homepageContent?.workSectionSubtitle || ''
 
   return (
     <main className="min-h-screen">

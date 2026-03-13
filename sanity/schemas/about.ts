@@ -18,10 +18,22 @@ export default defineType({
       of: [{ type: 'block' }],
     }),
     defineField({
+      name: 'philosophyImage',
+      title: 'Philosophy Image (optional)',
+      type: 'image',
+      options: { hotspot: true },
+    }),
+    defineField({
       name: 'artistStatement',
       title: 'Artist Statement',
       type: 'array',
       of: [{ type: 'block' }],
+    }),
+    defineField({
+      name: 'artistStatementImage',
+      title: 'Artist Statement Image (optional)',
+      type: 'image',
+      options: { hotspot: true },
     }),
     defineField({
       name: 'exhibitions',
@@ -55,6 +67,23 @@ export default defineType({
               options: { hotspot: true }
             },
             { name: 'bio', type: 'array', title: 'Bio', of: [{ type: 'block' }] },
+            {
+              name: 'cvEntries',
+              title: 'CV Entries',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    { name: 'year', type: 'string', title: 'Year (e.g. 2023 or 2019–2022)' },
+                    { name: 'description', type: 'string', title: 'Description' },
+                  ],
+                  preview: {
+                    select: { title: 'year', subtitle: 'description' },
+                  },
+                },
+              ],
+            },
           ],
         },
       ],

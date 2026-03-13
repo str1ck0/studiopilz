@@ -55,21 +55,32 @@ export default async function AboutPage() {
             <h2 className="text-xl font-bold tracking-tight mb-2">Philosophy</h2>
             <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
           </div>
-          <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/80">
-            {about?.philosophy ? (
-              <PortableText value={about.philosophy as any} components={components} />
-            ) : (
-              <>
-                <p className="mb-6 leading-relaxed text-lg">
-                  Gathering data and information from the environment to create novel, generative visuals and sounds. From a more open-ended approach, we explain that as artists we have been working in these spaces, employing a diverse tech stack, techniques, tools, and processes.
-                </p>
-                <p className="mb-6 leading-relaxed text-lg">
-                  The data is fed into TouchDesigner—this software acts as our composer or Quarterback, orchestrating and collating all sources and other tools, defining and holding the logic and structure of the system. I/O inputs and outputs are at the core of the art we make: what information are we inputting, and what mechanisms change or parse this information to form an interesting, visually striking, engaging, thought-provoking or convention-defying output.
-                </p>
-                <p className="mb-6 leading-relaxed text-lg">
-                  We are particularly interested in dynamic human inputs (movement, sound, language, even fine-motor-skill adjustments of parameter controls like knobs, switches, and sliders), as well as environmental factors—heat, humidity, air pollution, noise, population density, and light. There is always a software and hardware component to our work.
-                </p>
-              </>
+          <div>
+            <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/80">
+              {about?.philosophy ? (
+                <PortableText value={about.philosophy as any} components={components} />
+              ) : (
+                <>
+                  <p className="mb-6 leading-relaxed text-lg">
+                    Gathering data and information from the environment to create novel, generative visuals and sounds. From a more open-ended approach, we explain that as artists we have been working in these spaces, employing a diverse tech stack, techniques, tools, and processes.
+                  </p>
+                  <p className="mb-6 leading-relaxed text-lg">
+                    The data is fed into TouchDesigner—this software acts as our composer or Quarterback, orchestrating and collating all sources and other tools, defining and holding the logic and structure of the system. I/O inputs and outputs are at the core of the art we make: what information are we inputting, and what mechanisms change or parse this information to form an interesting, visually striking, engaging, thought-provoking or convention-defying output.
+                  </p>
+                  <p className="mb-6 leading-relaxed text-lg">
+                    We are particularly interested in dynamic human inputs (movement, sound, language, even fine-motor-skill adjustments of parameter controls like knobs, switches, and sliders), as well as environmental factors—heat, humidity, air pollution, noise, population density, and light. There is always a software and hardware component to our work.
+                  </p>
+                </>
+              )}
+            </div>
+            {about?.philosophyImage?.url && (
+              <div className="mt-8 overflow-hidden rounded-lg">
+                <img
+                  src={about.philosophyImage.url}
+                  alt="Philosophy"
+                  className="w-full object-cover"
+                />
+              </div>
             )}
           </div>
         </AnimatedSection>
@@ -80,21 +91,32 @@ export default async function AboutPage() {
             <h2 className="text-xl font-bold tracking-tight mb-2">Artist Statement</h2>
             <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
           </div>
-          <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/80">
-            {about?.artistStatement ? (
-              <PortableText value={about.artistStatement as any} components={components} />
-            ) : (
-              <>
-                <p className="mb-6 leading-relaxed text-lg">
-                  We take advantage of our unique perspectives as digital natives born into a world where floppy disks, dial-up, VCRs, landlines, and FAX machines were still used alongside the burgeoning world-wide-web. We aim to explore the relationships between the forgotten analog and the modern digital, and how humans interact and shape our lives around such ubiquitous yet often transitory technologies.
-                </p>
-                <p className="mb-6 leading-relaxed text-lg">
-                  Up until now, we have worked primarily with vintage CRT Televisions—a technology that has been largely abandoned. We derive great pleasure and satisfaction in giving this old tech another shot at life, demonstrating the huge value it still has in bringing joy to people, subverting expectations, and provoking critical thought around technology and media consumption. Television has historically been one of the most powerful tools for propaganda, with media production and presentation almost entirely a top-down exercise. 
-                </p>
-                <p className="mb-6 leading-relaxed text-lg">
-                  Our work subverts this entire media consumption pattern, taking power back and challenging the viewer's conceptions of television—to be more mindful and critical of their consumption. In our work, we control the channels, the content on screen, and we radically switch up the physical context—from the comfort of the private lounge to the unpredictability, aliveness, and chaos of a public exhibition space or festival dancefloor. To further democratise the process, we turn viewers into participants, showing themselves mirrored by multiple camera feeds atop algorithmic imagery, sparking a deep sense of involvement and collaboration.
-                </p>
-              </>
+          <div>
+            <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/80">
+              {about?.artistStatement ? (
+                <PortableText value={about.artistStatement as any} components={components} />
+              ) : (
+                <>
+                  <p className="mb-6 leading-relaxed text-lg">
+                    We take advantage of our unique perspectives as digital natives born into a world where floppy disks, dial-up, VCRs, landlines, and FAX machines were still used alongside the burgeoning world-wide-web. We aim to explore the relationships between the forgotten analog and the modern digital, and how humans interact and shape our lives around such ubiquitous yet often transitory technologies.
+                  </p>
+                  <p className="mb-6 leading-relaxed text-lg">
+                    Up until now, we have worked primarily with vintage CRT Televisions—a technology that has been largely abandoned. We derive great pleasure and satisfaction in giving this old tech another shot at life, demonstrating the huge value it still has in bringing joy to people, subverting expectations, and provoking critical thought around technology and media consumption. Television has historically been one of the most powerful tools for propaganda, with media production and presentation almost entirely a top-down exercise.
+                  </p>
+                  <p className="mb-6 leading-relaxed text-lg">
+                    Our work subverts this entire media consumption pattern, taking power back and challenging the viewer's conceptions of television—to be more mindful and critical of their consumption. In our work, we control the channels, the content on screen, and we radically switch up the physical context—from the comfort of the private lounge to the unpredictability, aliveness, and chaos of a public exhibition space or festival dancefloor. To further democratise the process, we turn viewers into participants, showing themselves mirrored by multiple camera feeds atop algorithmic imagery, sparking a deep sense of involvement and collaboration.
+                  </p>
+                </>
+              )}
+            </div>
+            {about?.artistStatementImage?.url && (
+              <div className="mt-8 overflow-hidden rounded-lg">
+                <img
+                  src={about.artistStatementImage.url}
+                  alt="Artist Statement"
+                  className="w-full object-cover"
+                />
+              </div>
             )}
           </div>
         </AnimatedSection>
@@ -186,6 +208,19 @@ export default async function AboutPage() {
                       </div>
                     </details>
                   )}
+                  {member.cvEntries && member.cvEntries.length > 0 && (
+                    <div className="mt-6 border-t border-foreground/10 pt-4">
+                      <p className="font-mono text-xs tracking-widest uppercase opacity-40 mb-3">CV</p>
+                      <div className="space-y-2">
+                        {member.cvEntries.map((entry, j) => (
+                          <div key={j} className="flex gap-4 text-sm">
+                            <span className="font-mono text-xs opacity-50 shrink-0 pt-0.5 w-20">{entry.year}</span>
+                            <span className="opacity-80">{entry.description}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))
             ) : (
@@ -222,33 +257,6 @@ export default async function AboutPage() {
         </AnimatedSection>
 
       </div>
-
-      {/* Team Photos */}
-      {about?.teamPhotos && about.teamPhotos.length > 0 && (
-        <AnimatedSection delay={0.35} className="mt-24 pt-16 border-t border-black/10 dark:border-white/10">
-          <h2 className="text-xl font-bold tracking-tight mb-8">The Crew</h2>
-          <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory -mx-6 px-6">
-            {about.teamPhotos.map((photo: any, i: number) => (
-              <div
-                key={i}
-                className="flex-none w-[75vw] sm:w-[45vw] md:w-[35vw] lg:w-[28vw] snap-start aspect-[4/3] overflow-hidden rounded-2xl bg-black/5 dark:bg-white/5 relative group"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={photo.url}
-                  alt={photo.alt || `Team photo ${i + 1}`}
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-                />
-                {photo.caption && (
-                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <p className="text-white text-xs font-mono">{photo.caption}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </AnimatedSection>
-      )}
 
       {/* Interactive Guestbook / Drawing Pad Section */}
       <AnimatedSection delay={0.4} className="mt-32 pt-16 border-t border-black/10 dark:border-white/10 w-full relative z-10">
