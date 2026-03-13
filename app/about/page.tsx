@@ -33,13 +33,13 @@ export default async function AboutPage() {
 
   return (
     <main className="min-h-screen pt-32 pb-24 px-6 max-w-5xl mx-auto overflow-hidden">
-      
+
       {/* Header */}
       <AnimatedSection className="mb-24 flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-black/10 dark:border-white/10 pb-12">
         <h1 className="text-5xl md:text-8xl font-bold tracking-tighter leading-none">
           {title}
         </h1>
-        <a 
+        <a
           href={`mailto:${email}`}
           className="font-mono text-sm tracking-widest uppercase hover:underline underline-offset-4"
         >
@@ -48,7 +48,7 @@ export default async function AboutPage() {
       </AnimatedSection>
 
       <div className="flex flex-col gap-y-24">
-        
+
         {/* Philosophy */}
         <AnimatedSection className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8">
           <div>
@@ -167,8 +167,8 @@ export default async function AboutPage() {
                 <div key={i} className="group">
                   <div className="aspect-square w-full mb-4 overflow-hidden bg-black/5 dark:bg-white/5">
                     {member.image && (
-                      <img 
-                        src={urlForImage(member.image).url()} 
+                      <img
+                        src={urlForImage(member.image).url()}
                         alt={member.name}
                         className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
                       />
@@ -220,16 +220,43 @@ export default async function AboutPage() {
             )}
           </div>
         </AnimatedSection>
-        
+
       </div>
+
+      {/* Team Photos */}
+      {about?.teamPhotos && about.teamPhotos.length > 0 && (
+        <AnimatedSection delay={0.35} className="mt-24 pt-16 border-t border-black/10 dark:border-white/10">
+          <h2 className="text-xl font-bold tracking-tight mb-8">The Crew</h2>
+          <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory -mx-6 px-6">
+            {about.teamPhotos.map((photo: any, i: number) => (
+              <div
+                key={i}
+                className="flex-none w-[75vw] sm:w-[45vw] md:w-[35vw] lg:w-[28vw] snap-start aspect-[4/3] overflow-hidden rounded-2xl bg-black/5 dark:bg-white/5 relative group"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={photo.url}
+                  alt={photo.alt || `Team photo ${i + 1}`}
+                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                />
+                {photo.caption && (
+                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-white text-xs font-mono">{photo.caption}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </AnimatedSection>
+      )}
 
       {/* Interactive Guestbook / Drawing Pad Section */}
       <AnimatedSection delay={0.4} className="mt-32 pt-16 border-t border-black/10 dark:border-white/10 w-full relative z-10">
-        
+
         <DrawingPad />
-        
+
         <GuestbookGallery entries={guestbookEntries} />
-        
+
       </AnimatedSection>
 
     </main>

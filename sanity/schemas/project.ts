@@ -1,4 +1,6 @@
 import { defineType, defineField } from 'sanity'
+import { TagsInput } from '../components/TagsInput'
+import { GalleryInput } from '../components/GalleryInput'
 
 export default defineType({
   name: 'project',
@@ -83,37 +85,57 @@ export default defineType({
       name: 'gallery',
       title: 'Gallery',
       type: 'array',
+      components: {
+        input: GalleryInput,
+      },
       of: [
         {
           type: 'image',
-          options: {
-            hotspot: true,
+          options: { hotspot: true },
+          preview: {
+            select: { title: 'alt', subtitle: 'caption', media: 'asset' },
+            prepare({ title, subtitle, media }: { title?: string; subtitle?: string; media?: any }) {
+              return { title: title || 'Image', subtitle, media }
+            },
           },
           fields: [
-            {
-              name: 'alt',
-              type: 'string',
-              title: 'Alternative text',
-            },
-            {
-              name: 'caption',
-              type: 'string',
-              title: 'Caption',
-            },
+            { name: 'alt', type: 'string', title: 'Alternative text' },
+            { name: 'caption', type: 'string', title: 'Caption' },
           ],
         },
         {
           type: 'file',
           name: 'video',
           title: 'Video',
-          options: {
-            accept: 'video/*',
+          options: { accept: 'video/*' },
+          preview: {
+            select: { title: 'caption' },
+            prepare({ title }: { title?: string }) {
+              return { title: title || 'Video' }
+            },
           },
           fields: [
+            { name: 'caption', type: 'string', title: 'Caption' },
             {
-              name: 'caption',
+              name: 'previewPosition',
               type: 'string',
-              title: 'Caption',
+              title: 'Preview crop position',
+              description: 'Which part of the video frame to show in the gallery tile.',
+              options: {
+                list: [
+                  { title: 'Center (default)', value: 'center' },
+                  { title: 'Top', value: 'top' },
+                  { title: 'Bottom', value: 'bottom' },
+                  { title: 'Left', value: 'left' },
+                  { title: 'Right', value: 'right' },
+                  { title: 'Top left', value: 'top left' },
+                  { title: 'Top right', value: 'top right' },
+                  { title: 'Bottom left', value: 'bottom left' },
+                  { title: 'Bottom right', value: 'bottom right' },
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'center',
             },
           ],
         },
@@ -130,8 +152,8 @@ export default defineType({
       title: 'Tags',
       type: 'array',
       of: [{ type: 'string' }],
-      options: {
-        layout: 'tags',
+      components: {
+        input: TagsInput,
       },
     }),
     defineField({
@@ -144,6 +166,15 @@ export default defineType({
       title: 'Featured Project',
       type: 'boolean',
       initialValue: false,
+    }),
+    defineField({
+      name: 'projectDate',
+      title: 'Project Date',
+      type: 'date',
+      description: 'Month and year of the project — used to order projects.',
+      options: {
+        dateFormat: 'MMMM YYYY',
+      },
     }),
   ],
   preview: {

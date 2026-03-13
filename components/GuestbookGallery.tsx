@@ -1,7 +1,7 @@
 'use client'
 
+/* eslint-disable @next/next/no-img-element */
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import { GuestbookEntry } from '@/types'
 
 export default function GuestbookGallery({ entries }: { entries: GuestbookEntry[] }) {
@@ -58,11 +58,9 @@ export default function GuestbookGallery({ entries }: { entries: GuestbookEntry[
             {/* The Drawing */}
             {entry.drawingData && (
               <div className="w-full relative min-h-[150px] mb-4">
-                <Image 
-                  src={entry.drawingData} 
+                <img
+                  src={entry.drawingData}
                   alt={`Drawing by ${entry.authorName || 'Anonymous'}`}
-                  width={400}
-                  height={400}
                   className="w-full h-auto object-contain pointer-events-none filter drop-shadow-sm"
                 />
               </div>

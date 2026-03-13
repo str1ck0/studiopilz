@@ -16,7 +16,7 @@ export async function getHomepageData(): Promise<Homepage> {
 
 export async function getProjects(): Promise<Project[]> {
   return client.fetch(`
-    *[_type == "project"] | order(year desc) {
+    *[_type == "project"] | order(projectDate desc, year desc) {
       _id,
       title,
       "slug": slug.current,
@@ -43,7 +43,7 @@ export async function getProjectBySlug(slug: string): Promise<Project> {
       technicalApproach,
       collaborators,
       outcome,
-      gallery[]{..., "url": asset->url},
+      gallery[]{..., "url": asset->url, previewPosition},
       year,
       tags,
       link,
@@ -63,6 +63,7 @@ export async function getAboutData(): Promise<About> {
       exhibitions,
       team,
       skills,
+      teamPhotos[]{..., "url": asset->url},
       contactEmail,
       socialLinks
     }

@@ -66,6 +66,22 @@ export default defineType({
       of: [{ type: 'string' }],
     }),
     defineField({
+      name: 'teamPhotos',
+      title: 'Team Photos',
+      description: 'Group photos of the team — shown as a photo strip on the About page.',
+      type: 'array',
+      of: [
+        {
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            { name: 'alt', type: 'string', title: 'Alternative text' },
+            { name: 'caption', type: 'string', title: 'Caption' },
+          ],
+        },
+      ],
+    }),
+    defineField({
       name: 'contactEmail',
       title: 'Contact Email',
       type: 'string',
