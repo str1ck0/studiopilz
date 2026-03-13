@@ -12,21 +12,25 @@ interface HomeHeroProps {
 }
 
 const TYPEWRITER_STRINGS = [
-  'welcome to studio pilz',
-  'bring curiosity',
-  'let us bend your perception',
-  'leave with newborn wonder'
+  'welcome to\nstudio pilz',
+  'bring\ncuriosity',
+  'let us bend\nyour\nperception',
+  'leave with\nnewborn\nwonder'
 ]
 
 function RotatingAsciiText() {
   const [index, setIndex] = useState(0)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
+    setIsMounted(true)
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % TYPEWRITER_STRINGS.length)
     }, 4500)
     return () => clearInterval(interval)
   }, [])
+
+  if (!isMounted) return null
 
   return (
     <div className="w-full h-[60vh] max-h-[400px]">

@@ -123,9 +123,10 @@ class AsciiFilter {
     this.context.font = `${this.fontSize}px ${this.fontFamily}`;
     const charWidth = this.context.measureText('A').width;
     
-    this.cols = Math.floor(this.width / (this.fontSize * (charWidth / this.fontSize)));
+    this.cols = Math.floor(this.width / (this.fontSize * 0.55)); // 0.55 is roughly the font aspect ratio
     this.rows = Math.floor(this.height / this.fontSize);
     
+    // Ensure canvas matches the cols/rows exactly so we get a 1:1 mapping of WebGL pixel -> Ascii Char
     this.canvas.width = this.cols;
     this.canvas.height = this.rows;
     this.pre.style.fontFamily = this.fontFamily;
@@ -139,7 +140,19 @@ class AsciiFilter {
     this.pre.style.zIndex = '9';
     this.pre.style.color = '#ffffff';
     this.pre.style.backgroundAttachment = 'fixed';
+    
+    // Crucial: Use 'difference' blend mode so ascii pops on dark backgrounds, or 'normal' if you want pure white.
     this.pre.style.mixBlendMode = 'normal';
+    
+    // Explicit sizing
+    this.pre.style.width = '100%';
+    this.pre.style.height = '100%';
+    this.pre.style.overflow = 'hidden';
+    this.pre.style.display = 'flex';
+    this.pre.style.alignItems = 'center';
+    this.pre.style.justifyContent = 'center';
+    this.pre.style.textAlign = 'center';
+    this.pre.style.pointerEvents = 'none'; // pass clicks through to video
     
     // Hide the internal 2D canvas from DOM view:
     this.canvas.style.display = 'none';
@@ -171,7 +184,7 @@ class AsciiFilter {
             continue;
           }
           
-          const gray = (0.3 * r + 0.6 * g + 0.1 * b) / 255;
+          const gray = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
           let idx = Math.floor((1 - gray) * (this.charset.length - 1));
           if (this.invert) idx = this.charset.length - idx - 1;
           str += this.charset[idx];
@@ -216,18 +229,39 @@ class CanvasTxt {
   
   resize() {
     this.context.font = this.font;
-    const metrics = this.context.measureText(this.text);
-    this.canvas.width = Math.ceil(metrics.width) + 20;
-    this.canvas.height = this.fontSize;
+    const lines = this.text.split('\n');
+    let maxWidth = 0;
+    lines.forEach(line => {
+      const metrics = this.context.measureText(line);
+      if (metrics.width > maxWidth) {
+        maxWidth = metrics.width;
+      }
+    });
+    const metric = this.context.measureText('M');
+    // Actual bounding box is more accurate for tight rendering
+    const textHeight = metric.actualBoundingBoxAscent + metric.actualBoundingBoxDescent || this.fontSize;
+    
+    this.canvas.width = Math.max(1, Math.ceil(maxWidth) + 40);
+    this.canvas.height = Math.max(1, textHeight * lines.length + (lines.length * this.fontSize * 0.2) + 40);
   }
   
   render() {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.fillStyle = this.color;
     this.context.font = this.font;
-    const metrics = this.context.measureText(this.text);
-    const yPos = 10 + metrics.actualBoundingBoxAscent;
-    this.context.fillText(this.text, 10, yPos);
+    this.context.textAlign = 'center';
+    this.context.textBaseline = 'middle';
+    const lines = this.text.split('\n');
+    const xPos = this.canvas.width / 2;
+    // Calculate total height to center block vertically
+    const metric = this.context.measureText('M');
+    const lineHeight = metric.actualBoundingBoxAscent + metric.actualBoundingBoxDescent + (this.fontSize * 0.2) || this.fontSize * 1.2;
+    const totalHeight = lineHeight * lines.length;
+    const startY = (this.canvas.height - totalHeight) / 2 + (lineHeight / 2);
+    
+    lines.forEach((line, i) => {
+      this.context.fillText(line, xPos, startY + (i * lineHeight));
+    });
   }
   
   get texture() { return this.canvas; }
@@ -300,13 +334,30 @@ class CanvAscii {
       this.textCanvas.text = newText;
       this.textCanvas.resize();
       this.textCanvas.render();
-      if (this.texture) {
-         this.texture.needsUpdate = true;
+      
+      // Fix WebGL texture bounds overflow by recreating the texture entirely on size change
+      if (this.texture) this.texture.dispose();
+      this.texture = new THREE.CanvasTexture(this.textCanvas.texture);
+      this.texture.minFilter = THREE.NearestFilter;
+      
+      if (this.material) {
+        this.material.uniforms.uTexture.value = this.texture;
       }
-      // Recreate geometry based on new text aspect ratio
+      
+      // Auto-fit plane geometry inside camera frustum (FOV 45, z=30)
       const textAspect = this.textCanvas.getWidth() / this.textCanvas.getHeight();
-      const planeW = this.planeBaseHeight * textAspect;
-      const planeH = this.planeBaseHeight;
+      
+      const vHeight = 2 * Math.tan((45 / 2) * Math.PI / 180) * 30; // ~24.85
+      const vWidth = vHeight * (this.width / this.height);
+      
+      let planeW = vWidth * 0.9;
+      let planeH = planeW / textAspect;
+      
+      if (planeH > vHeight * 0.7) {
+         planeH = vHeight * 0.7;
+         planeW = planeH * textAspect;
+      }
+
       if (this.geometry) this.geometry.dispose();
       this.geometry = new THREE.PlaneGeometry(planeW, planeH, 36, 36);
       if (this.mesh) {
@@ -327,8 +378,15 @@ class CanvAscii {
     this.texture.minFilter = THREE.NearestFilter;
     
     const textAspect = this.textCanvas.getWidth() / this.textCanvas.getHeight();
-    const planeW = this.planeBaseHeight * textAspect;
-    const planeH = this.planeBaseHeight;
+    const vHeight = 2 * Math.tan((45 / 2) * Math.PI / 180) * 30;
+    const vWidth = vHeight * (this.width / this.height);
+    
+    let planeW = vWidth * 0.9;
+    let planeH = planeW / textAspect;
+    if (planeH > vHeight * 0.7) {
+       planeH = vHeight * 0.7;
+       planeW = planeH * textAspect;
+    }
     
     this.geometry = new THREE.PlaneGeometry(planeW, planeH, 36, 36);
     this.material = new THREE.ShaderMaterial({
@@ -359,7 +417,15 @@ class CanvAscii {
     const e = evt.touches ? evt.touches[0] : evt;
     if (!this.container) return;
     const bounds = this.container.getBoundingClientRect();
-    this.mouse = { x: e.clientX - bounds.left, y: e.clientY - bounds.top };
+    
+    let mx = e.clientX - bounds.left;
+    let my = e.clientY - bounds.top;
+    
+    // Clamp to prevent wild over-rotation when mouse leaves the element
+    mx = Math.max(0, Math.min(this.width, mx));
+    my = Math.max(0, Math.min(this.height, my));
+    
+    this.mouse = { x: mx, y: my };
   }
   
   animate() {
