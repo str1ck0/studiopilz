@@ -74,7 +74,7 @@ export default async function AboutPage() {
               )}
             </div>
             {about?.philosophyImage?.url && (
-              <div className="mt-8 overflow-hidden rounded-lg">
+              <div className="mt-8 overflow-hidden rounded">
                 <img
                   src={about.philosophyImage.url}
                   alt="Philosophy"
@@ -110,7 +110,7 @@ export default async function AboutPage() {
               )}
             </div>
             {about?.artistStatementImage?.url && (
-              <div className="mt-8 overflow-hidden rounded-lg">
+              <div className="mt-8 overflow-hidden rounded">
                 <img
                   src={about.artistStatementImage.url}
                   alt="Artist Statement"

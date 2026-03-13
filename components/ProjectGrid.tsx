@@ -33,7 +33,7 @@ export default function ProjectGrid({ projects }: ProjectGridProps) {
           transition={{ duration: 0.7, delay: (index % 3) * 0.1, ease: [0.16, 1, 0.3, 1] }}
           onMouseEnter={() => setHoveredId(project._id)}
           onMouseLeave={() => setHoveredId(null)}
-          className="relative group aspect-[4/5] overflow-hidden bg-black/5 dark:bg-white/5 rounded-2xl"
+          className="relative group aspect-[4/5] overflow-hidden bg-black/5 dark:bg-white/5 rounded"
         >
           <Link href={`/work/${project.slug}`} className="block w-full h-full cursor-pointer relative">
             {/* Background Image using Next.js Image for optimization */}

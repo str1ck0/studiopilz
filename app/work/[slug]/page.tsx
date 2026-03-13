@@ -35,7 +35,7 @@ export default async function ProjectPage({
             alt={value.alt || ' '}
             loading="lazy"
             src={urlForImage(value).width(1600).quality(85).url()}
-            className="w-full my-8 bg-black/5 dark:bg-white/5 object-cover rounded-xl"
+            className="w-full my-8 bg-black/5 dark:bg-white/5 object-cover rounded"
           />
         )
       },
@@ -97,7 +97,7 @@ export default async function ProjectPage({
 
       {/* Main Image */}
       {project.mainImage && (
-        <AnimatedSection delay={0.1} className="aspect-[16/9] md:aspect-[21/9] w-full mb-16 overflow-hidden bg-black/5 dark:bg-white/5 relative group rounded-2xl">
+        <AnimatedSection delay={0.1} className="aspect-[16/9] md:aspect-[21/9] w-full mb-16 overflow-hidden bg-black/5 dark:bg-white/5 relative group rounded">
           <Image
             src={urlForImage(project.mainImage).width(2400).quality(90).url()}
             alt={project.mainImage.alt || project.title}

@@ -63,7 +63,7 @@ function VideoItem({ item, style }: { item: GalleryItem; style?: React.CSSProper
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl bg-black/10 dark:bg-white/5 cursor-pointer w-full"
+      className="relative overflow-hidden rounded bg-black/10 dark:bg-white/5 cursor-pointer w-full"
       style={style}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -103,7 +103,7 @@ function VideoItem({ item, style }: { item: GalleryItem; style?: React.CSSProper
 function ImageItem({ item, index, style }: { item: GalleryItem; index: number; style?: React.CSSProperties }) {
   return (
     <div
-      className="relative overflow-hidden rounded-2xl bg-black/5 dark:bg-white/5 group w-full"
+      className="relative overflow-hidden rounded bg-black/5 dark:bg-white/5 group w-full"
       style={style}
     >
       <img
