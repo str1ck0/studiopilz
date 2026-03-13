@@ -1,73 +1,71 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
+
+// Dynamically import AsciiText to prevent SSR issues with Three.js
+const ASCIIText = dynamic(() => import('./AsciiText'), { ssr: false })
 
 interface HomeHeroProps {
   subtitle: string
-  title: string
-  description: string
+  videoUrl?: string
 }
 
-export default function HomeHero({ subtitle, title, description }: HomeHeroProps) {
+const TYPEWRITER_STRINGS = [
+  'welcome to studio pilz',
+  'bring curiosity',
+  'let us bend your perception',
+  'leave with newborn wonder'
+]
+
+function RotatingAsciiText() {
+  const [index, setIndex] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % TYPEWRITER_STRINGS.length)
+    }, 4500)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
-    <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 overflow-hidden pt-32">
+    <div className="w-full h-[60vh] max-h-[400px]">
+       <ASCIIText 
+         text={TYPEWRITER_STRINGS[index]}
+         asciiFontSize={12}
+         textFontSize={200}
+         textColor="#ffffff"
+         planeBaseHeight={14}
+         enableWaves={true}
+       />
+    </div>
+  )
+}
+
+export default function HomeHero({ videoUrl }: HomeHeroProps) {
+  return (
+    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
       
-      {/* Decorative large background text or shapes could go here if we wanted, 
-          but we are keeping it minimal and relying on the GrainientBackground */}
+      {/* Background Video (Less filtering) */}
+      {videoUrl && (
+        <div className="absolute inset-0 z-0 bg-black">
+          <video 
+            src={videoUrl} 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className="w-full h-full object-cover opacity-90 transition-opacity duration-1000 ease-in-out"
+          />
+          {/* Subtle Shadow Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/20 z-10 pointer-events-none" />
+        </div>
+      )}
       
-      <div className="max-w-[1200px] w-full mx-auto relative z-10 text-center">
-        
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-6 inline-block"
-        >
-          <span className="font-mono text-xs md:text-sm uppercase tracking-[0.3em] opacity-60">
-            {subtitle}
-          </span>
-        </motion.div>
-
-        <motion.h1 
-          className="text-5xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter leading-[0.9] mb-8"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          dangerouslySetInnerHTML={{ __html: title.replace(/\n/g, '<br />') }}
-        />
-
-        <motion.p 
-          className="text-lg md:text-2xl text-foreground/80 max-w-2xl mx-auto mb-12 leading-relaxed"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.2, delay: 0.4 }}
-        >
-          {description}
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-6"
-        >
-          <Link 
-            href="/work" 
-            className="group relative px-8 py-4 bg-foreground text-background font-mono text-sm tracking-widest uppercase overflow-hidden"
-          >
-            <span className="relative z-10 transition-colors group-hover:text-foreground">Explore Work</span>
-            <div className="absolute inset-0 bg-background border border-foreground translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-in-out" />
-          </Link>
-
-          <Link 
-            href="/about" 
-            className="px-8 py-4 font-mono text-sm tracking-widest uppercase border border-foreground/20 hover:border-foreground/60 transition-colors"
-          >
-            About the Network
-          </Link>
-        </motion.div>
-
+      <div className="w-full h-full absolute inset-0 z-20 flex items-center justify-center">
+        {/* Only the rotating Ascii text is on screen now */}
+        <RotatingAsciiText />
       </div>
     </section>
   )

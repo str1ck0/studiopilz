@@ -7,6 +7,7 @@ export async function getHomepageData(): Promise<Homepage> {
       heroSubtitle,
       heroTitle,
       heroDescription,
+      "heroVideo": heroVideo.asset->url,
       workSectionTitle,
       workSectionSubtitle
     }
@@ -38,6 +39,10 @@ export async function getProjectBySlug(slug: string): Promise<Project> {
       category,
       description,
       longDescription,
+      conceptAndContext,
+      technicalApproach,
+      collaborators,
+      outcome,
       gallery[]{..., "url": asset->url},
       year,
       tags,
@@ -57,6 +62,7 @@ export async function getAboutData(): Promise<About> {
       artistStatement,
       exhibitions,
       team,
+      skills,
       contactEmail,
       socialLinks
     }

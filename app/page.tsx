@@ -9,9 +9,10 @@ export default async function Home() {
   const homepageContent = await getHomepageData()
 
   // Setting sensible fallbacks
-  const heroSubtitle = homepageContent?.heroSubtitle || 'Creative Technology & Design'
+  const heroSubtitle = homepageContent?.heroSubtitle || 'interactive installations, creative computing, digital art and design'
   const heroTitle = homepageContent?.heroTitle || 'We build\n<span className="italic font-light opacity-80">digital</span> spaces.'
-  const heroDescription = homepageContent?.heroDescription || 'Studio Pilz is a contemporary full-service creative agency operating in the spaces between technology, art, design, and physical installations. We are a mycelial network of artists, musicians, scientists, and explorers.'
+  const heroDescription = homepageContent?.heroDescription || "Studio Pilz is a contemporary full-service creative agency operating in the spaces between technology, art, design, and physical installations."
+  const heroVideo = homepageContent?.heroVideo
   const workSectionTitle = homepageContent?.workSectionTitle || 'Selected Works'
   const workSectionSubtitle = homepageContent?.workSectionSubtitle || '2021—Present'
 
@@ -19,8 +20,7 @@ export default async function Home() {
     <main className="min-h-screen">
       <HomeHero 
         subtitle={heroSubtitle} 
-        title={heroTitle} 
-        description={heroDescription} 
+        videoUrl={heroVideo}
       />
       <div id="work" className="pt-24 pb-12 relative z-20">
         <div className="max-w-[1600px] mx-auto">

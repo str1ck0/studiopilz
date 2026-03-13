@@ -132,10 +132,36 @@ export default async function ProjectPage({
         
         <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/80">
           {project.longDescription ? (
-            <PortableText value={project.longDescription} components={components} />
+            <PortableText value={project.longDescription as any} components={components} />
           ) : (
             <div className="space-y-6 text-lg text-foreground/80">
              {project.description}
+            </div>
+          )}
+
+          {/* New Case Study Fields */}
+          {project.conceptAndContext && (
+            <div className="mt-16">
+              <h3 className="text-2xl font-bold mb-6 text-foreground">Concept & Context</h3>
+              <PortableText value={project.conceptAndContext as any} components={components} />
+            </div>
+          )}
+          {project.technicalApproach && (
+            <div className="mt-16">
+              <h3 className="text-2xl font-bold mb-6 text-foreground">Technical Approach</h3>
+              <PortableText value={project.technicalApproach as any} components={components} />
+            </div>
+          )}
+          {project.collaborators && (
+            <div className="mt-16">
+              <h3 className="text-2xl font-bold mb-6 text-foreground">Collaborators</h3>
+              <PortableText value={project.collaborators as any} components={components} />
+            </div>
+          )}
+          {project.outcome && (
+            <div className="mt-16">
+              <h3 className="text-2xl font-bold mb-6 text-foreground">Outcome & Reception</h3>
+              <PortableText value={project.outcome as any} components={components} />
             </div>
           )}
         </div>

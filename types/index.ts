@@ -6,6 +6,10 @@ export interface Project {
   category: string
   description?: string
   longDescription?: any[] // Portable Text block array
+  conceptAndContext?: any[]
+  technicalApproach?: any[]
+  collaborators?: any[]
+  outcome?: any[]
   mainImage: any
   gallery?: any[]
   year: number
@@ -18,7 +22,7 @@ export interface TeamMember {
   name: string
   role: string
   image: any
-  bio?: string
+  bio?: any[]
 }
 
 export interface Exhibition {
@@ -38,6 +42,7 @@ export interface About {
   artistStatement?: any[]
   exhibitions?: Exhibition[]
   team?: TeamMember[]
+  skills?: string[]
   contactEmail?: string
   socialLinks?: SocialLink[]
 }
@@ -46,6 +51,7 @@ export interface Homepage {
   heroSubtitle?: string
   heroTitle?: string
   heroDescription?: string
+  heroVideo?: any
   workSectionTitle?: string
   workSectionSubtitle?: string
 }

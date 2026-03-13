@@ -54,10 +54,16 @@ export default defineType({
               title: 'Photo',
               options: { hotspot: true }
             },
-            { name: 'bio', type: 'text', title: 'Short Bio' },
+            { name: 'bio', type: 'array', title: 'Bio', of: [{ type: 'block' }] },
           ],
         },
       ],
+    }),
+    defineField({
+      name: 'skills',
+      title: 'Skills / Technical Capabilities',
+      type: 'array',
+      of: [{ type: 'string' }],
     }),
     defineField({
       name: 'contactEmail',

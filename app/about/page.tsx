@@ -22,6 +22,15 @@ export default async function AboutPage() {
     }
   }
 
+  const fallbackSkills = [
+    'TouchDesigner', 'Python', 'JS / p5.js', 'local LLMs (Whisper, Ollama)', 
+    'Blender / 3D Modelling', '3D Printing / Fabrication', 'CRT signal chain', 
+    'OSC', 'Audio-reactive systems', 'Web Development (React, APIs, etc.)', 
+    'Adobe CC', 'AI image & video generation tools'
+  ]
+
+  const skillsToRender = about?.skills && about.skills.length > 0 ? about.skills : fallbackSkills
+
   return (
     <main className="min-h-screen pt-32 pb-24 px-6 max-w-5xl mx-auto overflow-hidden">
       
@@ -48,14 +57,17 @@ export default async function AboutPage() {
           </div>
           <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/80">
             {about?.philosophy ? (
-              <PortableText value={about.philosophy} components={components} />
+              <PortableText value={about.philosophy as any} components={components} />
             ) : (
               <>
                 <p className="mb-6 leading-relaxed text-lg">
-                  Studio Pilz is a contemporary full-service creative agency that operates in the elusive spaces between technology, art, design, and physical installations. We refuse to be boxed into a single medium.
+                  Gathering data and information from the environment to create novel, generative visuals and sounds. From a more open-ended approach, we explain that as artists we have been working in these spaces, employing a diverse tech stack, techniques, tools, and processes.
                 </p>
                 <p className="mb-6 leading-relaxed text-lg">
-                  Collaboration is central to our process. We function as a creative <strong>mycelial network</strong>—constantly connecting, sharing nutrients, and growing alongside a diverse ecosystem of artists, musicians, scientists, builders, and explorers.
+                  The data is fed into TouchDesigner—this software acts as our composer or Quarterback, orchestrating and collating all sources and other tools, defining and holding the logic and structure of the system. I/O inputs and outputs are at the core of the art we make: what information are we inputting, and what mechanisms change or parse this information to form an interesting, visually striking, engaging, thought-provoking or convention-defying output.
+                </p>
+                <p className="mb-6 leading-relaxed text-lg">
+                  We are particularly interested in dynamic human inputs (movement, sound, language, even fine-motor-skill adjustments of parameter controls like knobs, switches, and sliders), as well as environmental factors—heat, humidity, air pollution, noise, population density, and light. There is always a software and hardware component to our work.
                 </p>
               </>
             )}
@@ -70,11 +82,19 @@ export default async function AboutPage() {
           </div>
           <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/80">
             {about?.artistStatement ? (
-              <PortableText value={about.artistStatement} components={components} />
+              <PortableText value={about.artistStatement as any} components={components} />
             ) : (
-              <p className="mb-6 leading-relaxed text-lg">
-                We believe that the most profound digital and physical experiences are those that seamlessly blur the lines between reality and imagination. By integrating cutting-edge frontend web technologies with immersive hardware, our works attempt to provoke awe and invite playful interaction, acting as a bridge to the surreal.
-              </p>
+              <>
+                <p className="mb-6 leading-relaxed text-lg">
+                  We take advantage of our unique perspectives as digital natives born into a world where floppy disks, dial-up, VCRs, landlines, and FAX machines were still used alongside the burgeoning world-wide-web. We aim to explore the relationships between the forgotten analog and the modern digital, and how humans interact and shape our lives around such ubiquitous yet often transitory technologies.
+                </p>
+                <p className="mb-6 leading-relaxed text-lg">
+                  Up until now, we have worked primarily with vintage CRT Televisions—a technology that has been largely abandoned. We derive great pleasure and satisfaction in giving this old tech another shot at life, demonstrating the huge value it still has in bringing joy to people, subverting expectations, and provoking critical thought around technology and media consumption. Television has historically been one of the most powerful tools for propaganda, with media production and presentation almost entirely a top-down exercise. 
+                </p>
+                <p className="mb-6 leading-relaxed text-lg">
+                  Our work subverts this entire media consumption pattern, taking power back and challenging the viewer's conceptions of television—to be more mindful and critical of their consumption. In our work, we control the channels, the content on screen, and we radically switch up the physical context—from the comfort of the private lounge to the unpredictability, aliveness, and chaos of a public exhibition space or festival dancefloor. To further democratise the process, we turn viewers into participants, showing themselves mirrored by multiple camera feeds atop algorithmic imagery, sparking a deep sense of involvement and collaboration.
+                </p>
+              </>
             )}
           </div>
         </AnimatedSection>
@@ -115,6 +135,25 @@ export default async function AboutPage() {
           </div>
         </AnimatedSection>
 
+        {/* Skills & Technical Capabilities */}
+        <AnimatedSection delay={0.25} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8 border-t border-black/10 dark:border-white/10 pt-24">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight mb-2">Technical Practice</h2>
+            <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
+            <p className="mt-4 text-sm opacity-60">The primary tools and mediums that form our ecosystem.</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {skillsToRender.map((skill, index) => (
+              <div 
+                key={index}
+                className="px-4 py-2 border border-foreground/15 rounded-full text-sm font-mono hover:bg-foreground/5 hover:border-foreground/30 transition-colors"
+              >
+                {skill}
+              </div>
+            ))}
+          </div>
+        </AnimatedSection>
+
         {/* Team Section */}
         <AnimatedSection delay={0.3} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8 border-t border-black/10 dark:border-white/10 pt-24">
           <div>
@@ -137,22 +176,45 @@ export default async function AboutPage() {
                   </div>
                   <h3 className="text-lg font-bold">{member.name}</h3>
                   <p className="font-mono text-xs tracking-widest uppercase opacity-50 mb-3">{member.role}</p>
-                  {member.bio && <p className="text-sm opacity-80 leading-relaxed">{member.bio}</p>}
+                  {member.bio && (
+                    <details className="text-sm opacity-80 leading-relaxed mt-4 cursor-pointer group/details outline-none">
+                      <summary className="font-semibold select-none list-none text-foreground/60 hover:text-foreground transition-colors flex items-center gap-2">
+                        + Read full bio
+                      </summary>
+                      <div className="pt-4 prose prose-sm dark:prose-invert max-w-none text-foreground/80 border-t border-foreground/10 mt-4">
+                        <PortableText value={member.bio as any} components={components} />
+                      </div>
+                    </details>
+                  )}
                 </div>
               ))
             ) : (
               <>
                 <div className="group">
                   <div className="aspect-[4/5] w-full mb-4 overflow-hidden bg-black/10 dark:bg-white/10"></div>
-                  <h3 className="text-lg font-bold">Node 01</h3>
+                  <h3 className="text-lg font-bold">Liam Strickland</h3>
                   <p className="font-mono text-xs tracking-widest uppercase opacity-50 mb-3">Creative Technologist</p>
-                  <p className="text-sm opacity-80 leading-relaxed">Specialising in real-time graphics and web experiences.</p>
+                  <details className="text-sm opacity-80 leading-relaxed mt-4 cursor-pointer group/details outline-none">
+                    <summary className="font-semibold select-none list-none text-foreground/60 hover:text-foreground transition-colors flex items-center gap-2">
+                      + Read full bio
+                    </summary>
+                    <div className="pt-4 prose prose-sm dark:prose-invert max-w-none text-foreground/80 border-t border-foreground/10 mt-4">
+                      <p>Liam brings a strong background in software engineering and creative coding. Exploring intersections of data and human presence...</p>
+                    </div>
+                  </details>
                 </div>
                 <div className="group">
                   <div className="aspect-[4/5] w-full mb-4 overflow-hidden bg-black/10 dark:bg-white/10"></div>
-                  <h3 className="text-lg font-bold">Node 02</h3>
-                  <p className="font-mono text-xs tracking-widest uppercase opacity-50 mb-3">Experience Designer</p>
-                  <p className="text-sm opacity-80 leading-relaxed">Translating conceptual networks into physical spaces.</p>
+                  <h3 className="text-lg font-bold">Lisbeth Purrucker</h3>
+                  <p className="font-mono text-xs tracking-widest uppercase opacity-50 mb-3">Experience Designer & Maker</p>
+                  <details className="text-sm opacity-80 leading-relaxed mt-4 cursor-pointer group/details outline-none">
+                    <summary className="font-semibold select-none list-none text-foreground/60 hover:text-foreground transition-colors flex items-center gap-2">
+                      + Read full bio
+                    </summary>
+                    <div className="pt-4 prose prose-sm dark:prose-invert max-w-none text-foreground/80 border-t border-foreground/10 mt-4">
+                      <p>Lisbeth specializes in spatial design, 3D fabrication, and bridging the conceptual with the physical embodiment of the artwork...</p>
+                    </div>
+                  </details>
                 </div>
               </>
             )}

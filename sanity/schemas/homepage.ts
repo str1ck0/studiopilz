@@ -10,7 +10,16 @@ export default defineType({
       title: 'Hero Subtitle',
       description: 'The small mono text above the main title.',
       type: 'string',
-      initialValue: 'Creative Technology & Design',
+      initialValue: 'interactive installations, creative computing, digital art and design',
+    }),
+    defineField({
+      name: 'heroVideo',
+      title: 'Hero Video',
+      description: 'The background video for the hero section.',
+      type: 'file',
+      options: {
+        accept: 'video/*',
+      },
     }),
     defineField({
       name: 'heroTitle',

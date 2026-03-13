@@ -41,6 +41,30 @@ export default defineType({
       of: [{ type: 'block' }],
     }),
     defineField({
+      name: 'conceptAndContext',
+      title: 'Concept & Context',
+      type: 'array',
+      of: [{ type: 'block' }],
+    }),
+    defineField({
+      name: 'technicalApproach',
+      title: 'Technical Approach',
+      type: 'array',
+      of: [{ type: 'block' }],
+    }),
+    defineField({
+      name: 'collaborators',
+      title: 'Collaborators',
+      type: 'array',
+      of: [{ type: 'block' }],
+    }),
+    defineField({
+      name: 'outcome',
+      title: 'Outcome & Reception',
+      type: 'array',
+      of: [{ type: 'block' }],
+    }),
+    defineField({
       name: 'mainImage',
       title: 'Main Image',
       type: 'image',

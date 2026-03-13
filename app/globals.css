@@ -11,6 +11,7 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --font-sans: var(--font-inter);
+  --font-mono: var(--font-share-tech-mono);
 }
 
 .dark {
