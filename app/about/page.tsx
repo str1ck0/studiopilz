@@ -43,7 +43,7 @@ export default async function AboutPage() {
           href={`mailto:${email}`}
           className="font-mono text-sm tracking-widest uppercase hover:underline underline-offset-4"
         >
-          {email} ↗
+          {email.replace(/\.[^.]+$/, '')} ↗
         </a>
       </AnimatedSection>
 
