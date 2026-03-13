@@ -158,7 +158,7 @@ export default async function AboutPage() {
         </AnimatedSection>
 
         {/* Skills & Technical Capabilities */}
-        <AnimatedSection delay={0.25} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8 border-t border-black/10 dark:border-white/10 pt-24">
+        <AnimatedSection delay={0.25} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8 md:border-t border-black/10 dark:border-white/10 md:pt-24">
           <div>
             <h2 className="text-xl font-bold tracking-tight mb-2">Technical Practice</h2>
             <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
@@ -177,7 +177,7 @@ export default async function AboutPage() {
         </AnimatedSection>
 
         {/* Team Section */}
-        <AnimatedSection delay={0.3} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8 border-t border-black/10 dark:border-white/10 pt-24">
+        <AnimatedSection delay={0.3} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8 md:border-t border-black/10 dark:border-white/10 md:pt-24">
           <div>
             <h2 className="text-xl font-bold tracking-tight mb-2">The Network</h2>
             <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
@@ -211,7 +211,7 @@ export default async function AboutPage() {
                   {member.cvEntries && member.cvEntries.length > 0 && (
                     <details className="mt-4 cursor-pointer outline-none">
                       <summary className="font-semibold select-none list-none text-foreground/60 hover:text-foreground transition-colors flex items-center gap-2 text-sm border-t border-foreground/10 pt-4">
-                        CV ↗
+                        CV ↓
                       </summary>
                       <div className="mt-4 space-y-2">
                         {member.cvEntries.map((entry, j) => (
@@ -261,7 +261,7 @@ export default async function AboutPage() {
       </div>
 
       {/* Interactive Guestbook / Drawing Pad Section */}
-      <AnimatedSection delay={0.4} className="mt-32 pt-16 border-t border-black/10 dark:border-white/10 w-full relative z-10">
+      <AnimatedSection delay={0.4} className="mt-32 md:pt-16 md:border-t border-black/10 dark:border-white/10 w-full relative z-10">
 
         <DrawingPad />
 
