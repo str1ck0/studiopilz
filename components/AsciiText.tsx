@@ -485,9 +485,32 @@ export default function ASCIIText({
   const instanceRef = useRef<CanvAscii | null>(null);
   
   useEffect(() => {
-    if (!containerRef.current) return;
+    // Explicit return if SSR or no container
+    if (typeof window === 'undefined' || !containerRef.current) return;
+    
+    // Polyfill Math.map if needed by updateRotation
+    if (!(Math as any).map) {
+      (Math as any).map = function (val: number, in_min: number, in_max: number, out_min: number, out_max: number) {
+        return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+      };
+    }
+
     const container = containerRef.current;
-    const { width, height } = container.getBoundingClientRect();
+    
+    // Wait for the container to actually have dimensions before initializing WebGL
+    let { width, height } = container.getBoundingClientRect();
+    if (width === 0 || height === 0) {
+      width = window.innerWidth;
+      height = window.innerHeight;
+    }
+    
+    // Prevent double instantiations in Strict Mode
+    if (instanceRef.current) {
+      instanceRef.current.dispose();
+      while (container.firstChild) {
+        container.removeChild(container.firstChild);
+      }
+    }
     
     instanceRef.current = new CanvAscii({
       text, 
@@ -496,8 +519,8 @@ export default function ASCIIText({
       textColor, 
       planeBaseHeight,
       containerElem: container,
-      width: width || window.innerWidth,
-      height: height || window.innerHeight,
+      width: width,
+      height: height,
       enableWaves
     });
     
@@ -513,15 +536,24 @@ export default function ASCIIText({
       if (instanceRef.current) instanceRef.current.onMouseMove(e);
     };
     
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('mousemove', handleMouseMove);
+    // Fix: passive listeners are better for performance
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
-      if (instanceRef.current) instanceRef.current.dispose();
+      if (instanceRef.current) {
+        instanceRef.current.dispose();
+        instanceRef.current = null;
+      }
+      if (container) {
+         while(container.firstChild) {
+            container.removeChild(container.firstChild);
+         }
+      }
     };
-  }, []); // Run essentially once on mount
+  }, []); // Re-run only on mount and unmount
 
   // React to text prop changes without remounting the entire ThreeJS scene
   useEffect(() => {
