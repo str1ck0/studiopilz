@@ -1,5 +1,5 @@
 import { client } from './client'
-import { Project, About, Homepage } from '../../types'
+import { Project, About, Homepage, SiteSettings } from '../../types'
 
 export async function getHomepageData(): Promise<Homepage> {
   return client.fetch(`
@@ -62,6 +62,15 @@ export async function getAboutData(): Promise<About> {
       team[]{..., cvEntries[]},
       skills,
       teamPhotos[]{..., "url": asset->url},
+      contactEmail,
+      socialLinks
+    }
+  `)
+}
+
+export async function getSiteSettings(): Promise<SiteSettings> {
+  return client.fetch(`
+    *[_type == "siteSettings"][0] {
       contactEmail,
       socialLinks
     }

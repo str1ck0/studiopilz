@@ -113,21 +113,8 @@ export default defineType({
     defineField({
       name: 'contactEmail',
       title: 'Contact Email',
+      description: 'Deprecated — use Site Settings instead.',
       type: 'string',
-    }),
-    defineField({
-      name: 'socialLinks',
-      title: 'Social Links',
-      type: 'array',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            { name: 'platform', type: 'string', title: 'Platform (e.g. Instagram)' },
-            { name: 'url', type: 'url', title: 'URL' },
-          ],
-        },
-      ],
     }),
   ],
 })

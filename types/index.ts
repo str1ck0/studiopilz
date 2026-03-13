@@ -42,6 +42,11 @@ export interface SocialLink {
   url: string
 }
 
+export interface SiteSettings {
+  contactEmail?: string
+  socialLinks?: SocialLink[]
+}
+
 export interface About {
   title: string
   philosophy?: any[]
