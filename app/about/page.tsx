@@ -22,6 +22,12 @@ export default async function AboutPage() {
     }
   }
 
+  const bioComponents = {
+    block: {
+      normal: ({ children }: any) => <p className="mb-2 leading-relaxed text-sm opacity-80">{children}</p>,
+    }
+  }
+
   const fallbackSkills = [
     'TouchDesigner', 'Python', 'JS / p5.js', 'local LLMs (Whisper, Ollama)', 
     'Blender / 3D Modelling', '3D Printing / Fabrication', 'CRT signal chain', 
@@ -199,14 +205,9 @@ export default async function AboutPage() {
                   <h3 className="text-lg font-bold">{member.name}</h3>
                   <p className="font-mono text-xs tracking-widest uppercase opacity-50 mb-3">{member.role}</p>
                   {member.bio && (
-                    <details className="text-sm opacity-80 leading-relaxed mt-4 cursor-pointer group/details outline-none">
-                      <summary className="font-semibold select-none list-none text-foreground/60 hover:text-foreground transition-colors flex items-center gap-2">
-                        + Read full bio
-                      </summary>
-                      <div className="pt-4 prose prose-sm dark:prose-invert max-w-none text-foreground/80 border-t border-foreground/10 mt-4">
-                        <PortableText value={member.bio as any} components={components} />
-                      </div>
-                    </details>
+                    <div className="mt-4">
+                      <PortableText value={member.bio as any} components={bioComponents} />
+                    </div>
                   )}
                   {member.cvEntries && member.cvEntries.length > 0 && (
                     <details className="mt-4 cursor-pointer outline-none">
@@ -231,27 +232,17 @@ export default async function AboutPage() {
                   <div className="aspect-[4/5] w-full mb-4 overflow-hidden bg-black/10 dark:bg-white/10"></div>
                   <h3 className="text-lg font-bold">Liam Strickland</h3>
                   <p className="font-mono text-xs tracking-widest uppercase opacity-50 mb-3">Creative Technologist</p>
-                  <details className="text-sm opacity-80 leading-relaxed mt-4 cursor-pointer group/details outline-none">
-                    <summary className="font-semibold select-none list-none text-foreground/60 hover:text-foreground transition-colors flex items-center gap-2">
-                      + Read full bio
-                    </summary>
-                    <div className="pt-4 prose prose-sm dark:prose-invert max-w-none text-foreground/80 border-t border-foreground/10 mt-4">
-                      <p>Liam brings a strong background in software engineering and creative coding. Exploring intersections of data and human presence...</p>
-                    </div>
-                  </details>
+                  <div className="mt-4 border-t border-foreground/10 pt-4 text-sm opacity-80 leading-relaxed">
+                    <p>Liam brings a strong background in software engineering and creative coding. Exploring intersections of data and human presence...</p>
+                  </div>
                 </div>
                 <div className="group">
                   <div className="aspect-[4/5] w-full mb-4 overflow-hidden bg-black/10 dark:bg-white/10"></div>
                   <h3 className="text-lg font-bold">Lisbeth Purrucker</h3>
                   <p className="font-mono text-xs tracking-widest uppercase opacity-50 mb-3">Experience Designer & Maker</p>
-                  <details className="text-sm opacity-80 leading-relaxed mt-4 cursor-pointer group/details outline-none">
-                    <summary className="font-semibold select-none list-none text-foreground/60 hover:text-foreground transition-colors flex items-center gap-2">
-                      + Read full bio
-                    </summary>
-                    <div className="pt-4 prose prose-sm dark:prose-invert max-w-none text-foreground/80 border-t border-foreground/10 mt-4">
-                      <p>Lisbeth specializes in spatial design, 3D fabrication, and bridging the conceptual with the physical embodiment of the artwork...</p>
-                    </div>
-                  </details>
+                  <div className="mt-4 border-t border-foreground/10 pt-4 text-sm opacity-80 leading-relaxed">
+                    <p>Lisbeth specializes in spatial design, 3D fabrication, and bridging the conceptual with the physical embodiment of the artwork...</p>
+                  </div>
                 </div>
               </>
             )}
