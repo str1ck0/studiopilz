@@ -23,6 +23,13 @@ export const metadata: Metadata = {
   icons: {
     icon: '/icon.png',
   },
+  openGraph: {
+    title: "Studio Pilz",
+    description: "A creative technology and design studio specializing in web design, development, festival installations, and photography.",
+    url: "https://studiopilz.art",
+    siteName: "Studio Pilz",
+    type: "website",
+  },
 };
 
 export default async function RootLayout({
