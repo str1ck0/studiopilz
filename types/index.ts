@@ -56,8 +56,7 @@ export interface About {
   exhibitions?: Exhibition[]
   team?: TeamMember[]
   skills?: string[]
-  teamPhotos?: { asset: any; alt?: string; caption?: string }[]
-  contactEmail?: string
+contactEmail?: string
   socialLinks?: SocialLink[]
 }
 
