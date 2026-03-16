@@ -28,15 +28,6 @@ export default async function AboutPage() {
     }
   }
 
-  const fallbackSkills = [
-    'TouchDesigner', 'Python', 'JS / p5.js', 'local LLMs (Whisper, Ollama)', 
-    'Blender / 3D Modelling', '3D Printing / Fabrication', 'CRT signal chain', 
-    'OSC', 'Audio-reactive systems', 'Web Development (React, APIs, etc.)', 
-    'Adobe CC', 'AI image & video generation tools'
-  ]
-
-  const skillsToRender = about?.skills && about.skills.length > 0 ? about.skills : fallbackSkills
-
   return (
     <main className="min-h-screen pt-32 pb-24 px-6 max-w-5xl mx-auto overflow-hidden">
 
@@ -160,25 +151,6 @@ export default async function AboutPage() {
                 </div>
               </>
             )}
-          </div>
-        </AnimatedSection>
-
-        {/* Skills & Technical Capabilities */}
-        <AnimatedSection delay={0.25} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8 md:border-t border-black/10 dark:border-white/10 md:pt-24">
-          <div>
-            <h2 className="text-xl font-bold tracking-tight mb-2">Technical Practice</h2>
-            <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
-            <p className="mt-4 text-sm opacity-60">The primary tools and mediums that form our ecosystem.</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            {skillsToRender.map((skill, index) => (
-              <div 
-                key={index}
-                className="px-4 py-2 border border-foreground/15 rounded-full text-sm font-mono hover:bg-foreground/5 hover:border-foreground/30 transition-colors"
-              >
-                {skill}
-              </div>
-            ))}
           </div>
         </AnimatedSection>
 

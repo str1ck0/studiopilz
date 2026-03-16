@@ -9,7 +9,6 @@ export default async function Home() {
   const homepageContent = await getHomepageData()
 
   const heroVideo = homepageContent?.heroVideo
-  const workSectionTitle = homepageContent?.workSectionTitle || 'Selected Works'
 
   return (
     <main className="min-h-screen">
@@ -35,9 +34,6 @@ export default async function Home() {
 
       <div id="work" className="pt-24 pb-12 relative z-20">
         <div className="max-w-[1600px] mx-auto">
-          <div className="mb-12 px-6 border-b border-foreground/10 pb-4">
-            <h2 className="text-3xl font-bold tracking-tighter">{workSectionTitle}</h2>
-          </div>
           <ProjectGrid projects={projects} />
         </div>
       </div>
