@@ -168,7 +168,8 @@ export default function Mushroom({
     const still = sh.reducedMotion
 
     // ---- arrival: it pops up out of nothing with a bounce
-    sp.age += dt
+    // real time, not frame count, so slow devices see the same arrival
+    sp.age = t
     const arrive = Math.min(sp.age / 1.3, 1)
     const pop = still ? 1 : 1 + 2.7 * Math.pow(arrive - 1, 3) + 1.7 * Math.pow(arrive - 1, 2)
     if (group.current) group.current.scale.setScalar(Math.max(pop, 0.0001))

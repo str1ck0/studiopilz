@@ -214,6 +214,10 @@ class CanvasTxt {
   fontFamily: string;
   color: string;
   font: string;
+  /** when set, this image is drawn (tinted with `color`) instead of the text */
+  image: HTMLCanvasElement | null = null;
+  /** part of the image to draw, as fractions: [x, y, width, height] */
+  crop: [number, number, number, number] = [0, 0, 1, 1];
 
   constructor(text: string, { fontSize = 200, fontFamily = 'Arial', color = 'white' }: any = {}) {
     this.canvas = document.createElement('canvas');
@@ -228,6 +232,14 @@ class CanvasTxt {
   }
   
   resize() {
+    if (this.image) {
+      const [, , cw, ch] = this.crop;
+      const w = 1400;
+      const h = Math.round(w * ((this.image.height * ch) / (this.image.width * cw)));
+      this.canvas.width = w + 80;
+      this.canvas.height = h + 80;
+      return;
+    }
     this.context.font = this.font;
     const lines = this.text.split('\n');
     let maxWidth = 0;
@@ -247,6 +259,23 @@ class CanvasTxt {
   
   render() {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    if (this.image) {
+      // draw the image, then paint it in a flat colour so it reads like the text
+      this.context.globalCompositeOperation = 'source-over';
+      const [cx, cy, cw, ch] = this.crop;
+      const iw = this.image.width;
+      const ih = this.image.height;
+      this.context.drawImage(
+        this.image,
+        cx * iw, cy * ih, cw * iw, ch * ih,
+        40, 40, this.canvas.width - 80, this.canvas.height - 80
+      );
+      this.context.globalCompositeOperation = 'source-in';
+      this.context.fillStyle = this.color;
+      this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.context.globalCompositeOperation = 'source-over';
+      return;
+    }
     this.context.fillStyle = this.color;
     this.context.font = this.font;
     this.context.textAlign = 'center';
@@ -339,6 +368,20 @@ class CanvAscii {
     this.textString = newText;
     if (this.textCanvas) {
       this.textCanvas.text = newText;
+      this.refresh();
+    }
+  }
+
+  setImage(image: HTMLCanvasElement | null, crop: [number, number, number, number] = [0, 0, 1, 1]) {
+    if (this.textCanvas) {
+      this.textCanvas.image = image;
+      this.textCanvas.crop = crop;
+      this.refresh();
+    }
+  }
+
+  refresh() {
+    if (this.textCanvas) {
       this.textCanvas.resize();
       this.textCanvas.render();
       
@@ -478,6 +521,10 @@ export interface ASCIITextProps {
   textColor?: string;
   planeBaseHeight?: number;
   enableWaves?: boolean;
+  /** draw this image (e.g. a logo SVG) instead of the text */
+  imageSrc?: string;
+  /** part of the image to draw, as fractions: [x, y, width, height] */
+  imageCrop?: [number, number, number, number];
 }
 
 export default function ASCIIText({
@@ -486,7 +533,9 @@ export default function ASCIIText({
   textFontSize = 200,
   textColor = '#ffffff',
   planeBaseHeight = 8,
-  enableWaves = true
+  enableWaves = true,
+  imageSrc,
+  imageCrop
 }: ASCIITextProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const instanceRef = useRef<CanvAscii | null>(null);
@@ -561,6 +610,31 @@ export default function ASCIIText({
       }
     };
   }, []); // Re-run only on mount and unmount
+
+  // Swap in an image (e.g. the logo) once it has loaded
+  useEffect(() => {
+    if (!imageSrc) {
+      instanceRef.current?.setImage(null);
+      return;
+    }
+    let cancelled = false;
+    const img = new Image();
+    const [cx = 0, cy = 0, cw = 1, ch = 1] = imageCrop ?? [];
+    img.onload = () => {
+      if (cancelled) return;
+      // Rasterise the whole image first: browsers crop SVGs unreliably when
+      // asked to draw only part of one.
+      const raster = document.createElement('canvas');
+      raster.width = 2400;
+      raster.height = Math.round(2400 * (img.naturalHeight / img.naturalWidth || 1));
+      raster.getContext('2d')?.drawImage(img, 0, 0, raster.width, raster.height);
+      instanceRef.current?.setImage(raster, [cx, cy, cw, ch]);
+    };
+    img.src = imageSrc;
+    return () => {
+      cancelled = true;
+    };
+  }, [imageSrc, imageCrop]);
 
   // React to text prop changes without remounting the entire ThreeJS scene
   useEffect(() => {

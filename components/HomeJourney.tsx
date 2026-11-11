@@ -11,9 +11,13 @@ import { T, fadeWindow, makeTimeline, projectOpacity } from './mycelium/timeline
 const MyceliumScene = dynamic(() => import('./mycelium/MyceliumScene'), { ssr: false })
 const ASCIIText = dynamic(() => import('./AsciiText'), { ssr: false })
 
+// the logo, split in two: "studio" is its top half, "↑pilz" its bottom half
+const STUDIO_CROP: [number, number, number, number] = [0, 0, 1, 0.49]
+const PILZ_CROP: [number, number, number, number] = [0.19, 0.5, 0.81, 0.5]
+
 // the four lines of the journey, drawn as living ASCII
 const PHRASES = [
-  'welcome to\nstudio pilz',
+  'welcome',
   'bring\ncuriosity',
   'let us bend\nyour\nperception',
   'leave with\nnewborn\nwonder',
@@ -53,6 +57,10 @@ export default function HomeJourney({ projects }: { projects: JourneyProject[] }
   const captionRefs = useRef<(HTMLElement | null)[]>([])
   const asciiRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<HTMLDivElement>(null)
+  const studioRef = useRef<HTMLDivElement>(null)
+  const pilzRef = useRef<HTMLDivElement>(null)
+  // the ASCII logo only exists while the landing is on screen
+  const [logoMounted, setLogoMounted] = useState(true)
   // which phrase the ASCII layer is drawing; null while projects fill the screen
   const [phrase, setPhrase] = useState<number | null>(0)
 
@@ -73,6 +81,24 @@ export default function HomeJourney({ projects }: { projects: JourneyProject[] }
       document.documentElement.dataset.hero = u < timeline.portalStart + T * 0.7 ? 'on' : 'off'
 
       show(hintRef.current, Math.max(1 - u / 0.15, 0), 0)
+
+      // the two halves of the logo part like curtains as the threads spread out
+      const away = Math.min(Math.max(u / 0.45, 0), 1)
+      const wide = window.innerWidth >= 768
+      const halves: [HTMLDivElement | null, number][] = [
+        [studioRef.current, -1],
+        [pilzRef.current, 1],
+      ]
+      for (const [el, side] of halves) {
+        if (!el) continue
+        const shift = away * away * 30 * side
+        el.style.opacity = String(1 - away)
+        el.style.filter = away > 0 ? `blur(${away * 5}px)` : ''
+        el.style.transform = wide ? `translateX(${shift}vw)` : `translateY(${shift}vh)`
+        el.style.visibility = away >= 1 ? 'hidden' : 'visible'
+      }
+      const wantLogo = u < 0.6
+      setLogoMounted((prev) => (prev === wantLogo ? prev : wantLogo))
       const windows = [
         fadeWindow(u, 0.45, 1.25),
         fadeWindow(u, 1.3, 1.95),
@@ -132,7 +158,41 @@ export default function HomeJourney({ projects }: { projects: JourneyProject[] }
           <MyceliumScene journeyRef={journeyRef} timeline={timeline} imageUrls={imageUrls} />
         </div>
 
-        {/* landing: nothing but the mushroom and a quiet nudge */}
+        {/* landing: the mushroom between "studio" and "pilz", and a quiet nudge */}
+        <p className="sr-only">studio pilz</p>
+        <div
+          ref={studioRef}
+          className="pointer-events-none absolute inset-x-0 top-[3vh] h-[22vh] md:inset-x-auto md:left-[3vw] md:top-[30vh] md:h-[34vh] md:w-[36vw] mix-blend-difference will-change-transform"
+        >
+          {logoMounted && (
+            <ASCIIText
+              imageSrc="/studiopilz_logo.svg"
+              imageCrop={STUDIO_CROP}
+              asciiFontSize={6}
+              textFontSize={200}
+              textColor="#ffffff"
+              planeBaseHeight={14}
+              enableWaves={true}
+            />
+          )}
+        </div>
+        <div
+          ref={pilzRef}
+          className="pointer-events-none absolute inset-x-0 bottom-[8vh] h-[22vh] md:inset-x-auto md:bottom-auto md:right-[3vw] md:top-[30vh] md:h-[34vh] md:w-[36vw] mix-blend-difference will-change-transform"
+        >
+          {logoMounted && (
+            <ASCIIText
+              imageSrc="/studiopilz_logo.svg"
+              imageCrop={PILZ_CROP}
+              asciiFontSize={6}
+              textFontSize={200}
+              textColor="#ffffff"
+              planeBaseHeight={14}
+              enableWaves={true}
+            />
+          )}
+        </div>
+
         <div ref={hintRef} className="pointer-events-none absolute inset-x-0 bottom-8 flex justify-center">
           <span className="font-mono text-xs uppercase tracking-[0.3em] opacity-50 animate-pulse">
             scroll

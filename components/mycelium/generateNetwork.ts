@@ -85,6 +85,7 @@ export function generateNetwork({
   const fruits: Fruit[] = []
 
   const queue: Tip[] = []
+  const spreadNearSurface = !!origin
 
   if (origin) {
     // Roots leave from all around the foot of the stem (starting just inside
@@ -95,7 +96,7 @@ export function generateNetwork({
       const ring = r(0.1, 0.2)
       queue.push({
         pos: [origin[0] + Math.cos(a) * ring, origin[1] + r(0.08, 0.22), origin[2] + Math.sin(a) * ring],
-        dir: normalize([Math.cos(a) * r(0.5, 1.2), r(-0.9, -0.35), Math.sin(a) * r(0.4, 0.9)]),
+        dir: normalize([Math.cos(a), r(-0.22, -0.06), Math.sin(a) * r(0.5, 0.8)]),
         birth: r(0, 0.3),
         depth: 0,
         life: Math.floor(r(140, 220)),
@@ -203,7 +204,9 @@ export function generateNetwork({
       if (upward) d[1] += 0.14
 
       // steer within the slab
-      if (!upward && pos[1] > SURFACE - 0.5) d[1] -= 0.35
+      if (!upward && pos[1] > SURFACE - 0.25) d[1] -= spreadNearSurface ? 0.15 : 0.35
+      // spread out near the surface first, then slowly sink deeper
+      if (!upward && spreadNearSurface) d[1] -= 0.008
       if (pos[1] < FLOOR) d[1] += 0.3
       if (Math.abs(pos[0]) > X_LIMIT) d[0] -= Math.sign(pos[0]) * 0.3
       if (pos[2] < Z_MIN) d[2] += 0.3

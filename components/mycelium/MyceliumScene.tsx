@@ -311,7 +311,7 @@ function Halo({ shared, palette }: { shared: RefObject<SharedState>; palette: Pa
 // network spreads → dive in. WIDE is also where the journey ends.
 const WIDE = { pos: new THREE.Vector3(0, 1.6, 13), look: new THREE.Vector3(0, -1.6, 0) }
 const KEYS = [
-  { at: 0, pos: new THREE.Vector3(0, 1.25, 7), look: new THREE.Vector3(0, 1.05, 0) },
+  { at: 0, pos: new THREE.Vector3(0, 1.1, 7.6), look: new THREE.Vector3(0, 0.95, 0) },
   { at: 0.45, ...WIDE },
   { at: 1, pos: new THREE.Vector3(0, -5.2, 3.2), look: new THREE.Vector3(0, -4.6, -3) },
 ]
