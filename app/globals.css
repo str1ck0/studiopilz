@@ -41,3 +41,14 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Home: the landing is only the mushroom — nav fades in once the journey reaches the contents.
+   :has() keeps it hidden from first paint; HomeHero flips data-hero to "off" at the end. */
+.site-nav {
+  transition: opacity 0.6s ease, visibility 0.6s;
+}
+html:not([data-hero="off"]) body:has([data-hero-journey]) .site-nav {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}

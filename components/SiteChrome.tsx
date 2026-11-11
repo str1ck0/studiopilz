@@ -10,7 +10,9 @@ export default function SiteChrome() {
   return (
     <>
       <GrainientBackground />
-      <Navigation />
+      <div className="site-nav">
+        <Navigation />
+      </div>
     </>
   )
 }
