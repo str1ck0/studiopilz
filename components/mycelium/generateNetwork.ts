@@ -20,6 +20,9 @@ export interface Network {
   nodePositions: Float32Array
   nodeBirths: Float32Array
   nodeDepths: Float32Array
+  /** 1 for threads that live inside the mushroom and move with it, else 0 */
+  veins: Float32Array
+  nodeVeins: Float32Array
   fruits: Fruit[]
 }
 
@@ -84,18 +87,75 @@ export function generateNetwork({
   const queue: Tip[] = []
 
   if (origin) {
-    // everything unravels from a single point (the base of the mushroom)
-    const arms = 12
+    // Roots leave from all around the foot of the stem (starting just inside
+    // the glass), so the mushroom reads as part of the network, not perched on it.
+    const arms = 16
     for (let k = 0; k < arms; k++) {
-      const a = (k / arms) * Math.PI * 2 + r(-0.25, 0.25)
+      const a = (k / arms) * Math.PI * 2 + r(-0.2, 0.2)
+      const ring = r(0.1, 0.2)
       queue.push({
-        pos: [...origin],
-        dir: normalize([Math.cos(a), r(-0.9, -0.3), Math.sin(a) * 0.6]),
+        pos: [origin[0] + Math.cos(a) * ring, origin[1] + r(0.08, 0.22), origin[2] + Math.sin(a) * ring],
+        dir: normalize([Math.cos(a) * r(0.5, 1.2), r(-0.9, -0.35), Math.sin(a) * r(0.4, 0.9)]),
         birth: r(0, 0.3),
         depth: 0,
         life: Math.floor(r(140, 220)),
         upward: false,
       })
+    }
+
+    // Veins: threads that climb inside the stem and fan out under the cap.
+    // (Dimensions match the mushroom model at MUSHROOM_HEIGHT = 2.2.)
+    const CAP_Y = 1.28
+    const VEIN_STEP = 0.07
+    const growVein = (start: V3, startBirth: number, angle: number, steps: number, level: number) => {
+      let pos = start
+      let birth = startBirth
+      for (let s = 0; s < steps; s++) {
+        const y = pos[1] - origin[1]
+        let d: V3
+        if (y < CAP_Y) {
+          // hug the axis on the way up
+          const want = 0.07 + level * 0.04
+          d = [
+            (origin[0] + Math.cos(angle) * want - pos[0]) * 2 + (rng() - 0.5) * 0.7,
+            1,
+            (origin[2] + Math.sin(angle) * want - pos[2]) * 2 + (rng() - 0.5) * 0.7,
+          ]
+        } else {
+          // spread out and arch over inside the cap
+          d = [
+            Math.cos(angle) * 0.9 + (rng() - 0.5) * 0.8,
+            0.6 - (y - CAP_Y) * 0.7 + (rng() - 0.5) * 0.5,
+            Math.sin(angle) * 0.9 + (rng() - 0.5) * 0.8,
+          ]
+        }
+        d = normalize(d)
+        const next: V3 = [pos[0] + d[0] * VEIN_STEP, pos[1] + d[1] * VEIN_STEP, pos[2] + d[2] * VEIN_STEP]
+        const ny = next[1] - origin[1]
+        const radius = Math.hypot(next[0] - origin[0], next[2] - origin[2])
+        if (ny >= CAP_Y) {
+          const dome = 0.62 * Math.sqrt(Math.max(0, 1 - Math.pow((ny - CAP_Y) / 0.75, 2)))
+          if (radius > dome || ny > 2.0) break
+        }
+        segPos.push(...pos, ...next)
+        segBirth.push(birth, birth + VEIN_STEP)
+        segDepth.push(0.3, 0.3)
+        if (rng() < 0.2) {
+          nodePos.push(...next)
+          nodeBirth.push(birth + VEIN_STEP)
+          nodeDepth.push(0.3)
+        }
+        pos = next
+        birth += VEIN_STEP
+        if (ny > CAP_Y && level < 2 && rng() < 0.1) {
+          growVein([...pos], birth, angle + r(-1, 1), 22, level + 1)
+        }
+      }
+    }
+    const veins = 7
+    for (let v = 0; v < veins; v++) {
+      const a = (v / veins) * Math.PI * 2 + r(-0.3, 0.3)
+      growVein([origin[0] + Math.cos(a) * 0.06, origin[1] + 0.1, origin[2] + Math.sin(a) * 0.06], 0, a, 60, 0)
     }
   } else {
     // a few roots spread underground
@@ -118,6 +178,10 @@ export function generateNetwork({
       }
     }
   }
+
+  // everything generated so far lives inside the mushroom
+  const veinVerts = segBirth.length
+  const veinNodes = nodeBirth.length
 
   let head = 0
   let segCount = 0
@@ -217,6 +281,8 @@ export function generateNetwork({
     nodePositions: Float32Array.from(nodePos),
     nodeBirths: norm(nodeBirth),
     nodeDepths: Float32Array.from(nodeDepth),
+    veins: Float32Array.from(segBirth, (_, i) => (i < veinVerts ? 1 : 0)),
+    nodeVeins: Float32Array.from(nodeBirth, (_, i) => (i < veinNodes ? 1 : 0)),
     fruits,
   }
 }

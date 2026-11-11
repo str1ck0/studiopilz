@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { urlForImage } from '@/lib/sanity.image'
@@ -9,6 +9,15 @@ import { T, fadeWindow, makeTimeline, projectOpacity } from './mycelium/timeline
 
 // Three.js is client-only
 const MyceliumScene = dynamic(() => import('./mycelium/MyceliumScene'), { ssr: false })
+const ASCIIText = dynamic(() => import('./AsciiText'), { ssr: false })
+
+// the four lines of the journey, drawn as living ASCII
+const PHRASES = [
+  'welcome to\nstudio pilz',
+  'bring\ncuriosity',
+  'let us bend\nyour\nperception',
+  'leave with\nnewborn\nwonder',
+]
 
 type JourneyProject = Pick<Project, '_id' | 'title' | 'slug' | 'category' | 'year' | 'mainImage'>
 
@@ -39,10 +48,13 @@ export default function HomeJourney({ projects }: { projects: JourneyProject[] }
   const hintRef = useRef<HTMLDivElement>(null)
   const welcomeRef = useRef<HTMLDivElement>(null)
   const curiosityRef = useRef<HTMLDivElement>(null)
-  const perceptionRef = useRef<HTMLDivElement>(null)
   const wonderRef = useRef<HTMLDivElement>(null)
   const shadeRef = useRef<HTMLDivElement>(null)
   const captionRefs = useRef<(HTMLElement | null)[]>([])
+  const asciiRef = useRef<HTMLDivElement>(null)
+  const sceneRef = useRef<HTMLDivElement>(null)
+  // which phrase the ASCII layer is drawing; null while projects fill the screen
+  const [phrase, setPhrase] = useState<number | null>(0)
 
   useEffect(() => {
     const update = () => {
@@ -61,10 +73,30 @@ export default function HomeJourney({ projects }: { projects: JourneyProject[] }
       document.documentElement.dataset.hero = u < timeline.portalStart + T * 0.7 ? 'on' : 'off'
 
       show(hintRef.current, Math.max(1 - u / 0.15, 0), 0)
-      show(welcomeRef.current, fadeWindow(u, 0.45, 1.25))
-      show(curiosityRef.current, fadeWindow(u, 1.3, 1.95))
-      show(perceptionRef.current, fadeWindow(u, 1.95, 2.55, 0.14))
-      show(wonderRef.current, Math.min(Math.max((u - timeline.endStart - T * 0.6) / 0.3, 0), 1))
+      const windows = [
+        fadeWindow(u, 0.45, 1.25),
+        fadeWindow(u, 1.3, 1.95),
+        fadeWindow(u, 1.95, 2.55, 0.14),
+        Math.min(Math.max((u - timeline.endStart - T * 0.6) / 0.3, 0), 1),
+      ]
+      show(welcomeRef.current, windows[0])
+      show(curiosityRef.current, windows[1])
+      show(wonderRef.current, windows[3])
+
+      // one ASCII layer shows whichever phrase is current; it swaps text while invisible
+      show(asciiRef.current, Math.max(...windows), 0)
+      const next =
+        u < 1.275 ? 0 : u < 1.95 ? 1 : u < timeline.portalStart + T ? 2 : u > timeline.endStart ? 3 : null
+      setPhrase((prev) => (prev === next ? prev : next))
+
+      // in the closing scene the threads melt into the page instead of ending in a hard edge
+      if (sceneRef.current) {
+        const closing = Math.min(Math.max((u - timeline.endStart) / T, 0), 1)
+        const mask =
+          closing > 0 ? `linear-gradient(to bottom, #000 55%, rgba(0,0,0,${1 - closing}) 100%)` : ''
+        sceneRef.current.style.maskImage = mask
+        sceneRef.current.style.webkitMaskImage = mask
+      }
 
       let anyCaption = 0
       captionRefs.current.forEach((caption, i) => {
@@ -84,8 +116,8 @@ export default function HomeJourney({ projects }: { projects: JourneyProject[] }
     }
   }, [timeline])
 
-  const phrase = 'text-4xl md:text-7xl font-light tracking-tight leading-[0.95]'
-  const definition = 'mt-5 max-w-md text-sm md:text-base leading-relaxed'
+  const title = 'text-4xl md:text-7xl font-light tracking-tight leading-[0.95]'
+  const definition = 'max-w-md text-sm md:text-base leading-relaxed'
   const layer = 'pointer-events-none absolute inset-0 flex p-6 pb-12 md:p-16 opacity-0 will-change-transform'
 
   return (
@@ -96,7 +128,9 @@ export default function HomeJourney({ projects }: { projects: JourneyProject[] }
       style={{ height: `${(timeline.total + 1) * 100}vh` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
-        <MyceliumScene journeyRef={journeyRef} timeline={timeline} imageUrls={imageUrls} />
+        <div ref={sceneRef} className="absolute inset-0">
+          <MyceliumScene journeyRef={journeyRef} timeline={timeline} imageUrls={imageUrls} />
+        </div>
 
         {/* landing: nothing but the mushroom and a quiet nudge */}
         <div ref={hintRef} className="pointer-events-none absolute inset-x-0 bottom-8 flex justify-center">
@@ -108,11 +142,7 @@ export default function HomeJourney({ projects }: { projects: JourneyProject[] }
         {/* the network unravels */}
         <div ref={welcomeRef} className={`${layer} items-end`}>
           <div>
-            <h1 className={phrase}>
-              welcome to
-              <br />
-              studio pilz
-            </h1>
+            <h1 className="sr-only">welcome to studio pilz</h1>
             <p className={definition}>
               <span className="font-bold">Pilz</span>{' '}
               <span className="font-mono text-sm opacity-60">/pɪlts/</span>{' '}
@@ -127,11 +157,7 @@ export default function HomeJourney({ projects }: { projects: JourneyProject[] }
         {/* the dive */}
         <div ref={curiosityRef} className={`${layer} items-end justify-end text-right`}>
           <div className="flex flex-col items-end">
-            <p className={phrase}>
-              bring
-              <br />
-              curiosity
-            </p>
+            <p className="sr-only">bring curiosity</p>
             <p className={definition}>
               <span className="font-bold">stu·di·o</span>{' '}
               <span className="font-mono text-sm opacity-60">/ˈstjuːdɪəʊ/</span>{' '}
@@ -141,13 +167,24 @@ export default function HomeJourney({ projects }: { projects: JourneyProject[] }
           </div>
         </div>
 
-        {/* the first portal opens behind this line */}
-        <div ref={perceptionRef} className={`${layer} items-center justify-center text-center`}>
-          <p className={`${phrase} md:text-8xl mix-blend-difference text-white`}>
-            let us bend
-            <br />
-            your perception
-          </p>
+        {/* the phrases, as symbols and numbers */}
+        <div
+          ref={asciiRef}
+          className="pointer-events-none absolute inset-0 flex items-center justify-center mix-blend-difference opacity-0"
+        >
+          <p className="sr-only">let us bend your perception</p>
+          <div className="w-full h-[60vh] max-h-[400px]">
+            {phrase !== null && (
+              <ASCIIText
+                text={PHRASES[phrase]}
+                asciiFontSize={12}
+                textFontSize={200}
+                textColor="#ffffff"
+                planeBaseHeight={14}
+                enableWaves={true}
+              />
+            )}
+          </div>
         </div>
 
         {/* projects */}
@@ -171,7 +208,7 @@ export default function HomeJourney({ projects }: { projects: JourneyProject[] }
                 {project.category ? ` — ${project.category}` : ''}
                 {project.year ? `, ${project.year}` : ''}
               </p>
-              <h2 className={`${phrase} mt-3`}>{project.title}</h2>
+              <h2 className={`${title} mt-3`}>{project.title}</h2>
               <p className="mt-5 font-mono text-sm uppercase tracking-[0.2em]">
                 <span className="border-b border-white/60 pb-1 transition-colors group-hover:border-white">
                   view project →
@@ -184,22 +221,12 @@ export default function HomeJourney({ projects }: { projects: JourneyProject[] }
         {/* back at the mushroom */}
         <div
           ref={wonderRef}
-          className="absolute inset-0 flex items-end justify-center p-6 pb-16 md:p-16 text-center opacity-0 will-change-transform"
+          className="pointer-events-none absolute inset-0 flex items-end justify-center p-6 pb-16 md:p-16 text-center opacity-0 will-change-transform"
           style={{ visibility: 'hidden' }}
         >
-          <div
-            className="px-10 py-8"
-            style={{
-              background:
-                'radial-gradient(closest-side, var(--background) 0%, color-mix(in srgb, var(--background) 80%, transparent) 55%, transparent 100%)',
-            }}
-          >
-            <p className={phrase}>
-              leave with
-              <br />
-              newborn wonder
-            </p>
-            <p className="mt-8 flex justify-center gap-8 font-mono text-sm uppercase tracking-[0.2em]">
+          <div>
+            <p className="sr-only">leave with newborn wonder</p>
+            <p className="pointer-events-auto flex justify-center gap-8 font-mono text-sm uppercase tracking-[0.2em]">
               <Link href="/work" className="border-b border-current pb-1 opacity-80 hover:opacity-100">
                 all work
               </Link>

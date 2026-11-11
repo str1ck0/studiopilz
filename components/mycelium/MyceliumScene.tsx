@@ -1,62 +1,23 @@
 'use client'
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Environment, Lightformer, MeshTransmissionMaterial, useGLTF } from '@react-three/drei'
+import { Environment, Lightformer } from '@react-three/drei'
 import { Suspense, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { useTheme } from 'next-themes'
 import * as THREE from 'three'
-import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { generateNetwork } from './generateNetwork'
+import Mushroom from './Mushroom'
 import Portal from './Portal'
+import {
+  BEND_REACH,
+  MAX_INTERACT_GROWTH,
+  MUSHROOM_HEIGHT,
+  PALETTES,
+  createSharedState,
+  type Palette,
+  type SharedState,
+} from './shared'
 import { A_LEN, T, samplePortal, type Timeline } from './timeline'
-
-const MODEL_URL = '/models/glass_pilz_v2.glb'
-/** how far idle cursor play can unravel the network before scrolling takes over */
-const MAX_INTERACT_GROWTH = 0.2
-
-/** Mutable state shared between the DOM and the render loop (no re-renders). */
-interface SharedState {
-  pointer: THREE.Vector2
-  pointerWorld: THREE.Vector3
-  lastPointerMove: number
-  mouseStrength: number
-  growth: number
-  /** growth earned by moving the cursor around (0..MAX_INTERACT_GROWTH) */
-  interact: number
-  reducedMotion: boolean
-}
-
-interface Palette {
-  thread: THREE.Color
-  hot: THREE.Color
-  opacity: number
-  blending: THREE.Blending
-  /** what the glass sees behind itself — matches the page background */
-  backdrop: string
-  halo: string
-  haloStrength: number
-}
-
-const PALETTES: Record<'dark' | 'light', Palette> = {
-  dark: {
-    thread: new THREE.Color('#f2e7d5'),
-    hot: new THREE.Color('#ffb36b'),
-    opacity: 0.35,
-    blending: THREE.AdditiveBlending,
-    backdrop: '#1a1a1a',
-    halo: '#f2e7d5',
-    haloStrength: 0.55,
-  },
-  light: {
-    thread: new THREE.Color('#1a1a1a'),
-    hot: new THREE.Color('#9a4a12'),
-    opacity: 0.45,
-    blending: THREE.NormalBlending,
-    backdrop: '#f2e7d5',
-    halo: '#ffffff',
-    haloStrength: 0.8,
-  },
-}
 
 // ---------------------------------------------------------------- shaders
 
@@ -64,13 +25,41 @@ const commonVertex = /* glsl */ `
   uniform float uTime;
   uniform vec3 uMouse;
   uniform float uMouseStrength;
+  uniform vec2 uBend;
+  uniform float uStretch;
+  uniform float uSpin;
+  uniform float uFlare;
+  uniform float uPop;
   attribute float aBirth;
+  attribute float aVein;
   attribute float aDepth;
   varying float vBirth;
   varying float vDepth;
   varying float vMouse;
 
+  // threads inside the mushroom bend with its stalk (same maths as bendPoint in shared.ts)
+  vec3 bendStalk(vec3 p) {
+    float k = p.y / ${MUSHROOM_HEIGHT.toFixed(2)};
+    float k2 = k * k;
+    // spin with the glass, flung outward a little when it spins fast
+    float cs = cos(uSpin), sn = sin(uSpin);
+    float fl = 1.0 + uFlare * 0.5 * k2;
+    p = vec3((p.x * cs - p.z * sn) * fl, p.y * (1.0 - uFlare * 0.12 * k2), (p.x * sn + p.z * cs) * fl);
+    float bulge = inversesqrt(uStretch);
+    float droop = dot(uBend, uBend) * ${(MUSHROOM_HEIGHT * 0.1).toFixed(3)};
+    float reach = ${(MUSHROOM_HEIGHT * BEND_REACH).toFixed(3)};
+    return vec3(
+      p.x * bulge + uBend.x * reach * k2,
+      p.y * uStretch - droop * k2 - (p.x * uBend.x + p.z * uBend.y) * 0.9 * k,
+      p.z * bulge + uBend.y * reach * k2
+    ) * uPop;
+  }
+
   vec3 displace(vec3 p) {
+    if (aVein > 0.5) {
+      vMouse = 0.0;
+      return bendStalk(p);
+    }
     vec3 q = p;
     // slow breathing
     q.x += sin(uTime * 0.35 + p.y * 1.3 + p.z * 0.7) * 0.03;
@@ -90,6 +79,7 @@ const commonFragment = /* glsl */ `
   uniform vec3 uColor;
   uniform vec3 uHot;
   uniform float uOpacity;
+  uniform float uBurst;
   varying float vBirth;
   varying float vDepth;
   varying float vMouse;
@@ -103,7 +93,9 @@ const commonFragment = /* glsl */ `
     float sig = pow(0.5 + 0.5 * sin(vBirth * 55.0 - uTime * 1.8), 28.0);
     sig += pow(0.5 + 0.5 * sin(vBirth * 23.0 - uTime * 0.9 + 1.7), 40.0) * 0.7;
     sig *= smoothstep(0.0, 0.15, age);
-    float heat = clamp(front + sig * 0.8 + vMouse * 0.9, 0.0, 1.0);
+    // a click sends one bright pulse outward from the mushroom
+    float burst = exp(-pow((vBirth - uBurst * 0.3) / 0.025, 2.0)) * (1.0 - smoothstep(1.5, 3.5, uBurst));
+    float heat = clamp(front + sig * 0.8 + vMouse * 0.9 + burst * 1.5, 0.0, 1.0);
     float base = uOpacity * mix(1.0, 0.35, vDepth);
     return vec2(clamp(base + heat * 0.9, 0.0, 1.0), heat);
   }
@@ -171,6 +163,12 @@ function Mycelium({
       uGrowth: { value: 0 },
       uMouse: { value: new THREE.Vector3(0, -100, 0) },
       uMouseStrength: { value: 0 },
+      uBurst: { value: 100 },
+      uBend: { value: new THREE.Vector2() },
+      uStretch: { value: 1 },
+      uSpin: { value: 0 },
+      uFlare: { value: 0 },
+      uPop: { value: 0 },
       uColor: { value: palette.thread.clone() },
       uHot: { value: palette.hot.clone() },
       uOpacity: { value: palette.opacity },
@@ -192,6 +190,7 @@ function Mycelium({
     g.setAttribute('position', new THREE.BufferAttribute(network.positions, 3))
     g.setAttribute('aBirth', new THREE.BufferAttribute(network.births, 1))
     g.setAttribute('aDepth', new THREE.BufferAttribute(network.depths, 1))
+    g.setAttribute('aVein', new THREE.BufferAttribute(network.veins, 1))
     return g
   }, [network])
 
@@ -200,6 +199,7 @@ function Mycelium({
     g.setAttribute('position', new THREE.BufferAttribute(network.nodePositions, 3))
     g.setAttribute('aBirth', new THREE.BufferAttribute(network.nodeBirths, 1))
     g.setAttribute('aDepth', new THREE.BufferAttribute(network.nodeDepths, 1))
+    g.setAttribute('aVein', new THREE.BufferAttribute(network.nodeVeins, 1))
     return g
   }, [network])
 
@@ -216,6 +216,12 @@ function Mycelium({
     uniforms.uGrowth.value = shared.current.growth
     uniforms.uMouse.value.copy(shared.current.pointerWorld)
     uniforms.uMouseStrength.value = shared.current.mouseStrength
+    uniforms.uBurst.value = (performance.now() - shared.current.burstAt) / 1000
+    uniforms.uBend.value.set(shared.current.bendX, shared.current.bendZ)
+    uniforms.uStretch.value = shared.current.stretch
+    uniforms.uSpin.value = shared.current.spin
+    uniforms.uFlare.value = shared.current.flare
+    uniforms.uPop.value = shared.current.pop
   })
 
   return (
@@ -246,87 +252,7 @@ function Mycelium({
   )
 }
 
-// ---------------------------------------------------------------- mushroom
-
-const MUSHROOM_HEIGHT = 2.2
-
-function useMushroomGeometry() {
-  const { scene } = useGLTF(MODEL_URL)
-  return useMemo(() => {
-    const parts: THREE.BufferGeometry[] = []
-    scene.updateMatrixWorld(true)
-    scene.traverse((child) => {
-      const mesh = child as THREE.Mesh
-      if (mesh.isMesh) {
-        const g = mesh.geometry.clone()
-        g.applyMatrix4(mesh.matrixWorld)
-        parts.push(g)
-      }
-    })
-    const merged = mergeGeometries(parts) ?? parts[0]
-    // stand it on the origin with a known height
-    merged.computeBoundingBox()
-    const box = merged.boundingBox!
-    const center = box.getCenter(new THREE.Vector3())
-    const k = MUSHROOM_HEIGHT / (box.max.y - box.min.y)
-    merged.translate(-center.x, -box.min.y, -center.z)
-    merged.scale(k, k, k)
-    merged.computeVertexNormals()
-    return merged
-  }, [scene])
-}
-
-function HeroMushroom({
-  shared,
-  palette,
-  small,
-}: {
-  shared: RefObject<SharedState>
-  palette: Palette
-  small: boolean
-}) {
-  const geometry = useMushroomGeometry()
-  const ref = useRef<THREE.Group>(null)
-  const backdrop = useMemo(() => new THREE.Color(palette.backdrop), [palette.backdrop])
-
-  useFrame((state, delta) => {
-    const g = ref.current
-    if (!g) return
-    const t = state.clock.elapsedTime
-    const { pointer, reducedMotion } = shared.current
-    const spin = reducedMotion ? 0 : t * 0.15
-    const ease = 1 - Math.exp(-delta * 4)
-    // pivots at the base of the stem, so it leans toward the cursor
-    g.rotation.y = THREE.MathUtils.lerp(g.rotation.y, spin + pointer.x * 0.5, ease)
-    g.rotation.x = THREE.MathUtils.lerp(g.rotation.x, -pointer.y * 0.4, ease)
-    g.rotation.z = THREE.MathUtils.lerp(g.rotation.z, -pointer.x * 0.4, ease)
-    g.position.y = reducedMotion ? 0 : Math.sin(t * 0.6) * 0.06
-  })
-
-  return (
-    <group ref={ref}>
-      <mesh geometry={geometry}>
-        <MeshTransmissionMaterial
-          background={backdrop}
-          backside
-          backsideThickness={0.5}
-          thickness={1}
-          samples={small ? 4 : 8}
-          resolution={small ? 256 : 768}
-          transmission={1}
-          roughness={0.04}
-          ior={1.45}
-          chromaticAberration={0.03}
-          anisotropicBlur={0.05}
-          distortion={0}
-          clearcoat={1}
-          clearcoatRoughness={0.05}
-          color="#ffffff"
-        />
-      </mesh>
-    </group>
-  )
-}
+// ---------------------------------------------------------------- halo
 
 // soft light behind the mushroom — gives the glass something bright to bend
 const haloVertex = /* glsl */ `
@@ -507,15 +433,7 @@ export default function MyceliumScene({
   const [visible, setVisible] = useState(true)
   const [small] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768)
 
-  const shared = useRef<SharedState>({
-    pointer: new THREE.Vector2(0, 0),
-    pointerWorld: new THREE.Vector3(0, -100, 0),
-    lastPointerMove: 0,
-    mouseStrength: 0,
-    growth: 0,
-    interact: 0,
-    reducedMotion: false,
-  })
+  const shared = useRef<SharedState>(createSharedState())
 
   const network = useMemo(
     () => generateNetwork({ maxSegments: small ? 5000 : 9000, maxFruits: 0, origin: [0, 0, 0] }),
@@ -531,11 +449,52 @@ export default function MyceliumScene({
       // every bit of cursor travel coaxes a few more threads out
       const travel = Math.hypot(x - s.pointer.x, y - s.pointer.y)
       s.interact = Math.min(s.interact + travel * 0.012, MAX_INTERACT_GROWTH)
+      // fast swipes knock the mushroom
+      if (s.lastPointerMove > 0 && !s.dragging) {
+        s.kickX += (x - s.pointer.x) * 7
+        s.kickZ -= (y - s.pointer.y) * 4
+      }
       s.pointer.set(x, y)
       s.lastPointerMove = performance.now()
     }
+    // click / tap: the mushroom squashes and a pulse runs down the threads
+    const onClick = () => {
+      s.kickSquash -= 3.2
+      s.kickX += (Math.random() - 0.5) * 3
+      s.burstAt = performance.now()
+      s.interact = Math.min(s.interact + 0.06, MAX_INTERACT_GROWTH)
+    }
+    // letting go of the cap: it snaps back and wobbles
+    const onRelease = () => {
+      if (!s.dragging) return
+      s.dragging = false
+      document.body.style.cursor = ''
+    }
+    // dev only: ?pointer=0.8,0.2 holds a fake cursor there and ?click=1 clicks once,
+    // so screenshots can show the mushroom reacting
+    let fake: ReturnType<typeof setInterval> | undefined
+    if (process.env.NODE_ENV === 'development') {
+      const params = new URLSearchParams(window.location.search)
+      const at = params.get('pointer')?.split(',').map(Number)
+      if (at?.length === 2) {
+        fake = setInterval(() => {
+          s.pointer.set(at[0], at[1])
+          s.lastPointerMove = performance.now()
+        }, 100)
+      }
+      if (params.get('click')) setTimeout(onClick, 1200)
+    }
     window.addEventListener('pointermove', onMove, { passive: true })
-    return () => window.removeEventListener('pointermove', onMove)
+    window.addEventListener('click', onClick)
+    window.addEventListener('pointerup', onRelease)
+    window.addEventListener('pointercancel', onRelease)
+    return () => {
+      if (fake) clearInterval(fake)
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('click', onClick)
+      window.removeEventListener('pointerup', onRelease)
+      window.removeEventListener('pointercancel', onRelease)
+    }
   }, [])
 
   // stop rendering when the journey is off screen
@@ -574,7 +533,7 @@ export default function MyceliumScene({
           <Mycelium shared={shared} palette={palette} network={network} />
           <group ref={mushroom}>
             <Suspense fallback={null}>
-              <HeroMushroom shared={shared} palette={palette} small={small} />
+              <Mushroom shared={shared} journeyRef={journeyRef} palette={palette} small={small} />
             </Suspense>
           </group>
         </group>
@@ -584,4 +543,3 @@ export default function MyceliumScene({
   )
 }
 
-useGLTF.preload(MODEL_URL)
