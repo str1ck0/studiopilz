@@ -9,6 +9,8 @@ import GuestbookGallery from '@/components/GuestbookGallery'
 import InkTrail from '@/components/InkTrail'
 import ScrambleText from '@/components/ScrambleText'
 import StackCards from '@/components/StackCards'
+import CrtTv, { type Channel } from '@/components/CrtTv'
+import type { TeamMember } from '@/types'
 
 export const revalidate = 60
 
@@ -25,10 +27,29 @@ export default async function AboutPage() {
     }
   }
 
+
   const bioComponents = {
     block: {
-      normal: ({ children }: any) => <p className="mb-2 leading-relaxed text-sm opacity-80">{children}</p>,
+      normal: ({ children }: any) => <p className="mb-3 leading-relaxed text-sm opacity-80">{children}</p>,
     }
+  }
+
+  // each person's TV: their photo first, then anything in their reel
+  const channelsFor = (member: TeamMember): Channel[] => {
+    const channels: Channel[] = []
+    if (member.image) {
+      channels.push({ kind: 'image', url: urlForImage(member.image).width(960).height(720).url(), alt: member.name })
+    }
+    for (const item of member.reel ?? []) {
+      if (item._type === 'image' && item.asset) {
+        channels.push({ kind: 'image', url: urlForImage(item).width(960).height(720).url(), alt: member.name })
+      } else if (item._type === 'file' && item.url && item.mimeType?.startsWith('video/')) {
+        channels.push({ kind: 'video', url: item.url })
+      }
+    }
+    // with only a photo, the second channel is a simple name card
+    if (channels.length < 2) channels.push({ kind: 'ident', name: member.name, role: member.role })
+    return channels
   }
 
   const cards = [
@@ -147,9 +168,6 @@ export default async function AboutPage() {
               duration={1400}
               className="block text-5xl font-bold leading-none tracking-tighter break-words md:text-8xl"
             />
-            <p className="mt-6 font-mono text-xs uppercase tracking-widest opacity-50">
-              move around to grow the network
-            </p>
           </div>
           <a
             href={`mailto:${email}`}
@@ -164,70 +182,22 @@ export default async function AboutPage() {
 
         <StackCards cards={cards} />
 
-        {/* Team Section */}
-        <AnimatedSection delay={0.3} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8 md:border-t border-black/10 dark:border-white/10 md:pt-24">
-          <div>
+        {/* Team: the two of us, joined by the skills we share */}
+        <AnimatedSection delay={0.3} className="flex flex-col gap-10 md:gap-12 md:border-t border-black/10 dark:border-white/10 md:pt-24">
+          <div className="max-w-xl">
             <ScrambleText as="h2" text="The Network" className="block text-xl font-bold tracking-tight mb-2" />
             <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
             <p className="mt-4 text-sm opacity-60">Key nodes in the Studio Pilz ecosystem.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            {about?.team && about.team.length > 0 ? (
-              about.team.map((member, i) => (
-                <div key={i} className="group">
-                  <div className="aspect-square w-full mb-4 overflow-hidden bg-black/5 dark:bg-white/5">
-                    {member.image && (
-                      <img
-                        src={urlForImage(member.image).url()}
-                        alt={member.name}
-                        className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
-                      />
-                    )}
-                  </div>
-                  <h3 className="text-lg font-bold">{member.name}</h3>
-                  <p className="font-mono text-xs tracking-widest uppercase opacity-50 mb-3">{member.role}</p>
-                  {member.bio && (
-                    <div className="mt-4">
-                      <PortableText value={member.bio as any} components={bioComponents} />
-                    </div>
-                  )}
-                  {member.cvEntries && member.cvEntries.length > 0 && (
-                    <details className="mt-4 cursor-pointer outline-none">
-                      <summary className="font-semibold select-none list-none text-foreground/60 hover:text-foreground transition-colors flex items-center gap-2 text-sm border-t border-foreground/10 pt-4">
-                        CV ↓
-                      </summary>
-                      <div className="mt-4 space-y-2">
-                        {member.cvEntries.map((entry, j) => (
-                          <div key={j} className="flex gap-4 text-sm">
-                            <span className="font-mono text-xs opacity-50 shrink-0 pt-0.5 w-20">{entry.year}</span>
-                            <span className="opacity-80">{entry.description}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </details>
-                  )}
-                </div>
-              ))
-            ) : (
-              <>
-                <div className="group">
-                  <div className="aspect-[4/5] w-full mb-4 overflow-hidden bg-black/10 dark:bg-white/10"></div>
-                  <h3 className="text-lg font-bold">Liam Strickland</h3>
-                  <p className="font-mono text-xs tracking-widest uppercase opacity-50 mb-3">Creative Technologist</p>
-                  <div className="mt-4 border-t border-foreground/10 pt-4 text-sm opacity-80 leading-relaxed">
-                    <p>Liam brings a strong background in software engineering and creative coding. Exploring intersections of data and human presence...</p>
-                  </div>
-                </div>
-                <div className="group">
-                  <div className="aspect-[4/5] w-full mb-4 overflow-hidden bg-black/10 dark:bg-white/10"></div>
-                  <h3 className="text-lg font-bold">Lisbeth Purrucker</h3>
-                  <p className="font-mono text-xs tracking-widest uppercase opacity-50 mb-3">Experience Designer & Maker</p>
-                  <div className="mt-4 border-t border-foreground/10 pt-4 text-sm opacity-80 leading-relaxed">
-                    <p>Lisbeth specializes in spatial design, 3D fabrication, and bridging the conceptual with the physical embodiment of the artwork...</p>
-                  </div>
-                </div>
-              </>
-            )}
+          <div className="grid grid-cols-1 gap-16 sm:grid-cols-2 sm:gap-8 lg:gap-12">
+            {(about?.team ?? []).map((member) => (
+              <article key={member.name} className="flex flex-col">
+                <CrtTv channels={channelsFor(member)} label={member.name} />
+                <ScrambleText as="h3" text={member.name} className="mt-6 block text-lg font-bold" />
+                <p className="mb-4 font-mono text-xs uppercase tracking-widest opacity-50">{member.role}</p>
+                {member.bio && <PortableText value={member.bio as any} components={bioComponents} />}
+              </article>
+            ))}
           </div>
         </AnimatedSection>
 

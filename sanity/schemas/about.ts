@@ -68,6 +68,17 @@ export default defineType({
             },
             { name: 'bio', type: 'array', title: 'Bio', of: [{ type: 'block' }] },
             {
+              name: 'reel',
+              title: 'Reel',
+              description:
+                'Extra photos or short clips of this person. Each one becomes another channel on their TV on the about page, after the main photo.',
+              type: 'array',
+              of: [
+                { type: 'image', options: { hotspot: true } },
+                { type: 'file', title: 'Video', options: { accept: 'video/*' } },
+              ],
+            },
+            {
               name: 'cvEntries',
               title: 'CV Entries',
               type: 'array',
