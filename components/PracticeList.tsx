@@ -109,9 +109,11 @@ export default function PracticeList({ offerings }: { offerings: Offering[] }) {
               onClick={() => {
                 if (lastPointer.current !== 'mouse') setActive((prev) => (prev === i ? null : i))
               }}
-              className={`relative inline-flex max-w-full flex-wrap items-baseline gap-x-5 gap-y-1 overflow-hidden px-3 py-1.5 text-left transition-colors duration-200 md:px-5 md:py-2 ${
+              // phones and tablets: tags always sit under the title, so every row is the same height.
+              // wide screens: tags sit beside the title, on alternating sides.
+              className={`relative inline-flex max-w-full flex-col items-start gap-x-5 gap-y-1 overflow-hidden px-3 py-1.5 text-left transition-colors duration-200 lg:flex-row lg:items-baseline md:px-5 md:py-2 ${
                 on ? 'text-background' : 'bg-foreground/[0.05] text-foreground'
-              } ${tagsFirst ? 'flex-row-reverse justify-end' : ''}`}
+              } ${tagsFirst ? 'lg:flex-row-reverse lg:justify-end' : ''}`}
             >
               {/* the fill: wipes in in steps, with stripes flashing across */}
               <span
@@ -125,10 +127,11 @@ export default function PracticeList({ offerings }: { offerings: Offering[] }) {
                   className="absolute inset-0 bg-[repeating-linear-gradient(to_bottom,var(--background)_0px,var(--background)_2px,transparent_2px,transparent_6px)] motion-safe:animate-[row-stripes_420ms_steps(4)_forwards] motion-reduce:hidden"
                 />
               )}
-              <span className="relative font-mono text-[clamp(1.75rem,6.2vw,6rem)] uppercase leading-none tracking-tight">
+              <span className="relative whitespace-nowrap font-mono text-[min(7.4vw,6rem)] uppercase leading-none tracking-tight lg:text-[min(6.2vw,6rem)]">
                 <Title text={row.title} active={on} />
               </span>
-              <span className="relative max-w-[18rem] font-mono text-[10px] uppercase leading-snug tracking-wider opacity-60 md:text-[11px]">
+              {/* one line of tags everywhere, so the rows stay the same height */}
+              <span className="relative whitespace-nowrap font-mono text-[min(2.6vw,11px)] uppercase leading-snug tracking-wider opacity-60">
                 {row.tags}
               </span>
             </button>
