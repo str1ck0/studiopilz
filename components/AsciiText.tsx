@@ -138,7 +138,8 @@ class AsciiFilter {
     this.pre.style.left = '0';
     this.pre.style.top = '0';
     this.pre.style.zIndex = '9';
-    this.pre.style.color = '#ffffff';
+    // Follow the site theme: dark ink on the light background, cream on dark.
+    this.pre.style.color = 'var(--foreground)';
     this.pre.style.backgroundAttachment = 'fixed';
     
     // Crucial: Use 'difference' blend mode so ascii pops on dark backgrounds, or 'normal' if you want pure white.
@@ -403,8 +404,8 @@ class CanvAscii {
       let planeW = vWidth * 0.9;
       let planeH = planeW / textAspect;
       
-      if (planeH > vHeight * 0.7) {
-         planeH = vHeight * 0.7;
+      if (planeH > vHeight * 0.8) {
+         planeH = vHeight * 0.8;
          planeW = planeH * textAspect;
       }
 
@@ -433,8 +434,8 @@ class CanvAscii {
     
     let planeW = vWidth * 0.9;
     let planeH = planeW / textAspect;
-    if (planeH > vHeight * 0.7) {
-       planeH = vHeight * 0.7;
+    if (planeH > vHeight * 0.8) {
+       planeH = vHeight * 0.8;
        planeW = planeH * textAspect;
     }
     

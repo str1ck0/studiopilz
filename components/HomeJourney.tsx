@@ -233,11 +233,12 @@ export default function HomeJourney({ projects }: { projects: JourneyProject[] }
           className="pointer-events-none absolute inset-0 flex items-center justify-center mix-blend-difference opacity-0"
         >
           <p className="sr-only">let us bend your perception</p>
-          <div className="w-full h-[60vh] max-h-[400px]">
+          <div className="w-full h-[75vh]">
             {phrase !== null && (
               <ASCIIText
                 text={PHRASES[phrase]}
-                asciiFontSize={12}
+                // finer characters on narrower screens, where the width squeezes the words
+                asciiFontSize={typeof window === 'undefined' ? 12 : Math.round(Math.min(12, Math.max(5, window.innerWidth / 110)))}
                 textFontSize={200}
                 textColor="#ffffff"
                 planeBaseHeight={14}
