@@ -6,6 +6,9 @@ import { PortableText } from '@portabletext/react'
 import { AnimatedSection } from '@/components/AnimatedSection'
 import DrawingPad from '@/components/DrawingPad'
 import GuestbookGallery from '@/components/GuestbookGallery'
+import InkTrail from '@/components/InkTrail'
+import ScrambleText from '@/components/ScrambleText'
+import StackCards from '@/components/StackCards'
 
 export const revalidate = 60
 
@@ -28,30 +31,10 @@ export default async function AboutPage() {
     }
   }
 
-  return (
-    <main className="min-h-screen pt-32 pb-24 px-6 max-w-5xl mx-auto overflow-hidden">
-
-      {/* Header */}
-      <AnimatedSection className="mb-24 flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-black/10 dark:border-white/10 pb-12">
-        <h1 className="text-5xl md:text-8xl font-bold tracking-tighter leading-none">
-          {title}
-        </h1>
-        <a
-          href={`mailto:${email}`}
-          className="font-mono text-sm tracking-widest uppercase hover:underline underline-offset-4"
-        >
-          {email.replace(/\.[^.]+$/, '')} ↗
-        </a>
-      </AnimatedSection>
-
-      <div className="flex flex-col gap-y-24">
-
-        {/* Philosophy */}
-        <AnimatedSection className="flex flex-col gap-y-6">
-          <div>
-            <h2 className="text-xl font-bold tracking-tight mb-2">Philosophy</h2>
-            <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
-          </div>
+  const cards = [
+    {
+      title: 'Philosophy',
+      body: (
           <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8 items-start">
             {about?.philosophyImage?.url && (
               <div className="overflow-hidden rounded">
@@ -80,14 +63,11 @@ export default async function AboutPage() {
               )}
             </div>
           </div>
-        </AnimatedSection>
-
-        {/* Artist Statement */}
-        <AnimatedSection delay={0.1} className="flex flex-col gap-y-6">
-          <div>
-            <h2 className="text-xl font-bold tracking-tight mb-2">Artist Statement</h2>
-            <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
-          </div>
+      ),
+    },
+    {
+      title: 'Artist Statement',
+      body: (
           <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8 items-start">
             {about?.artistStatementImage?.url && (
               <div className="overflow-hidden rounded">
@@ -110,20 +90,17 @@ export default async function AboutPage() {
                     Up until now, we have worked primarily with vintage CRT Televisions—a technology that has been largely abandoned. We derive great pleasure and satisfaction in giving this old tech another shot at life, demonstrating the huge value it still has in bringing joy to people, subverting expectations, and provoking critical thought around technology and media consumption. Television has historically been one of the most powerful tools for propaganda, with media production and presentation almost entirely a top-down exercise.
                   </p>
                   <p className="mb-6 leading-relaxed text-lg">
-                    Our work subverts this entire media consumption pattern, taking power back and challenging the viewer's conceptions of television—to be more mindful and critical of their consumption. In our work, we control the channels, the content on screen, and we radically switch up the physical context—from the comfort of the private lounge to the unpredictability, aliveness, and chaos of a public exhibition space or festival dancefloor. To further democratise the process, we turn viewers into participants, showing themselves mirrored by multiple camera feeds atop algorithmic imagery, sparking a deep sense of involvement and collaboration.
+                    Our work subverts this entire media consumption pattern, taking power back and challenging the viewer&apos;s conceptions of television—to be more mindful and critical of their consumption. In our work, we control the channels, the content on screen, and we radically switch up the physical context—from the comfort of the private lounge to the unpredictability, aliveness, and chaos of a public exhibition space or festival dancefloor. To further democratise the process, we turn viewers into participants, showing themselves mirrored by multiple camera feeds atop algorithmic imagery, sparking a deep sense of involvement and collaboration.
                   </p>
                 </>
               )}
             </div>
           </div>
-        </AnimatedSection>
-
-        {/* Exhibitions & Events */}
-        <AnimatedSection delay={0.2} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8">
-          <div>
-            <h2 className="text-xl font-bold tracking-tight mb-2">Exhibitions & Events</h2>
-            <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
-          </div>
+      ),
+    },
+    {
+      title: 'Exhibitions & Events',
+      body: (
           <div className="space-y-4 font-mono text-sm tracking-wide">
             {about?.exhibitions && about.exhibitions.length > 0 ? (
               about.exhibitions.map((ex, i) => (
@@ -152,12 +129,45 @@ export default async function AboutPage() {
               </>
             )}
           </div>
-        </AnimatedSection>
+      ),
+    },
+  ]
+
+  return (
+    <main className="min-h-screen pb-24 overflow-x-clip">
+
+      {/* Header: threads grow wherever the cursor or a finger moves */}
+      <section className="relative flex min-h-[70svh] items-end">
+        <InkTrail />
+        <div className="relative mx-auto flex w-full max-w-5xl flex-col justify-between gap-8 border-b border-black/10 px-4 pb-12 pt-32 sm:px-6 md:flex-row md:items-end dark:border-white/10">
+          <div>
+            <ScrambleText
+              as="h1"
+              text={title}
+              duration={1400}
+              className="block text-5xl font-bold leading-none tracking-tighter break-words md:text-8xl"
+            />
+            <p className="mt-6 font-mono text-xs uppercase tracking-widest opacity-50">
+              move around to grow the network
+            </p>
+          </div>
+          <a
+            href={`mailto:${email}`}
+            className="inline-flex min-h-11 items-center font-mono text-sm uppercase tracking-widest underline-offset-4 hover:underline"
+          >
+            {email.replace(/\.[^.]+$/, '')} ↗
+          </a>
+        </div>
+      </section>
+
+      <div className="mx-auto mt-16 flex max-w-5xl flex-col gap-y-24 px-4 sm:px-6 md:mt-24">
+
+        <StackCards cards={cards} />
 
         {/* Team Section */}
         <AnimatedSection delay={0.3} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-12 gap-y-8 md:border-t border-black/10 dark:border-white/10 md:pt-24">
           <div>
-            <h2 className="text-xl font-bold tracking-tight mb-2">The Network</h2>
+            <ScrambleText as="h2" text="The Network" className="block text-xl font-bold tracking-tight mb-2" />
             <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
             <p className="mt-4 text-sm opacity-60">Key nodes in the Studio Pilz ecosystem.</p>
           </div>
@@ -221,8 +231,6 @@ export default async function AboutPage() {
           </div>
         </AnimatedSection>
 
-      </div>
-
       {/* Interactive Guestbook / Drawing Pad Section */}
       <AnimatedSection delay={0.4} className="mt-32 md:pt-16 md:border-t border-black/10 dark:border-white/10 w-full relative z-10">
 
@@ -231,6 +239,8 @@ export default async function AboutPage() {
         <GuestbookGallery entries={guestbookEntries} />
 
       </AnimatedSection>
+
+      </div>
 
     </main>
   )
