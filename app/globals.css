@@ -74,3 +74,10 @@ html:not([data-hero="off"]) body:has([data-hero-journey]) .site-nav {
   from { transform: translateY(-30%); }
   to { transform: translateY(130%); }
 }
+
+/* the practice list on the work page: stripes flash across a row as it fills */
+@keyframes row-stripes {
+  0% { opacity: 1; transform: translateX(-6%); }
+  50% { opacity: 1; transform: translateX(4%); }
+  100% { opacity: 0; transform: translateX(0); }
+}
