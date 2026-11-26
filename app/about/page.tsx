@@ -9,8 +9,7 @@ import GuestbookGallery from '@/components/GuestbookGallery'
 import InkTrail from '@/components/InkTrail'
 import ScrambleText from '@/components/ScrambleText'
 import StackCards from '@/components/StackCards'
-import CrtTv, { type Channel } from '@/components/CrtTv'
-import type { TeamMember } from '@/types'
+import PixelPortrait from '@/components/PixelPortrait'
 
 export const revalidate = 60
 
@@ -32,24 +31,6 @@ export default async function AboutPage() {
     block: {
       normal: ({ children }: any) => <p className="mb-3 leading-relaxed text-sm opacity-80">{children}</p>,
     }
-  }
-
-  // each person's TV: their photo first, then anything in their reel
-  const channelsFor = (member: TeamMember): Channel[] => {
-    const channels: Channel[] = []
-    if (member.image) {
-      channels.push({ kind: 'image', url: urlForImage(member.image).width(960).height(720).url(), alt: member.name })
-    }
-    for (const item of member.reel ?? []) {
-      if (item._type === 'image' && item.asset) {
-        channels.push({ kind: 'image', url: urlForImage(item).width(960).height(720).url(), alt: member.name })
-      } else if (item._type === 'file' && item.url && item.mimeType?.startsWith('video/')) {
-        channels.push({ kind: 'video', url: item.url })
-      }
-    }
-    // with only a photo, the second channel is a simple name card
-    if (channels.length < 2) channels.push({ kind: 'ident', name: member.name, role: member.role })
-    return channels
   }
 
   const cards = [
@@ -182,7 +163,7 @@ export default async function AboutPage() {
 
         <StackCards cards={cards} />
 
-        {/* Team: the two of us, joined by the skills we share */}
+        {/* Team: our portraits rest as pixels and reveal themselves under a cursor or a touch */}
         <AnimatedSection delay={0.3} className="flex flex-col gap-10 md:gap-12 md:border-t border-black/10 dark:border-white/10 md:pt-24">
           <div className="max-w-xl">
             <ScrambleText as="h2" text="The Network" className="block text-xl font-bold tracking-tight mb-2" />
@@ -192,7 +173,15 @@ export default async function AboutPage() {
           <div className="grid grid-cols-1 gap-16 sm:grid-cols-2 sm:gap-8 lg:gap-12">
             {(about?.team ?? []).map((member) => (
               <article key={member.name} className="flex flex-col">
-                <CrtTv channels={channelsFor(member)} label={member.name} />
+                {member.image ? (
+                  <PixelPortrait
+                    src={urlForImage(member.image).width(1000).height(1250).url()}
+                    alt={member.name}
+                    className="aspect-[4/5] w-full"
+                  />
+                ) : (
+                  <div className="aspect-[4/5] w-full bg-black/5 dark:bg-white/5" />
+                )}
                 <ScrambleText as="h3" text={member.name} className="mt-6 block text-lg font-bold" />
                 <p className="mb-4 font-mono text-xs uppercase tracking-widest opacity-50">{member.role}</p>
                 {member.bio && <PortableText value={member.bio as any} components={bioComponents} />}

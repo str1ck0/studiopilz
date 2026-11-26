@@ -28,8 +28,6 @@ export interface TeamMember {
   role: string
   image: any
   bio?: any[]
-  /** extra photos (image) or clips (file) shown as more TV channels */
-  reel?: { _type: 'image' | 'file'; _key: string; url?: string; mimeType?: string; [key: string]: any }[]
   cvEntries?: CvEntry[]
 }
 

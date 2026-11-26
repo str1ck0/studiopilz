@@ -59,7 +59,7 @@ export async function getAboutData(): Promise<About> {
       artistStatement,
       "artistStatementImage": artistStatementImage{..., "url": asset->url},
       exhibitions,
-      team[]{..., cvEntries[], reel[]{..., "url": asset->url, "mimeType": asset->mimeType}},
+      team[]{..., cvEntries[]},
       skills,
 contactEmail,
       socialLinks
