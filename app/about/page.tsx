@@ -3,11 +3,9 @@
 import { getAboutData, getGuestbookEntries } from '@/sanity/lib/api'
 import { urlForImage } from '@/sanity/lib/image'
 import { PortableText } from '@portabletext/react'
-import { AnimatedSection } from '@/components/AnimatedSection'
 import DrawingPad from '@/components/DrawingPad'
 import GuestbookGallery from '@/components/GuestbookGallery'
 import InkTrail from '@/components/InkTrail'
-import ScrambleText from '@/components/ScrambleText'
 import StackCards from '@/components/StackCards'
 import PixelPortrait from '@/components/PixelPortrait'
 
@@ -133,6 +131,37 @@ export default async function AboutPage() {
           </div>
       ),
     },
+    {
+      // portraits rest as pixels and reveal themselves under a cursor or a touch
+      title: 'The Network',
+      body: (
+        <div className="flex flex-col gap-10">
+          <p className="font-mono text-sm uppercase tracking-widest opacity-60">Nodes in the ecosystem.</p>
+          <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 sm:gap-8 lg:gap-12">
+            {(about?.team ?? []).map((member) => (
+              <article key={member.name} className="flex flex-col">
+                {member.image ? (
+                  <PixelPortrait
+                    src={urlForImage(member.image).width(1000).height(1250).url()}
+                    alt={member.name}
+                    className="aspect-[4/5] w-full overflow-hidden rounded"
+                  />
+                ) : (
+                  <div className="aspect-[4/5] w-full rounded bg-foreground/5" />
+                )}
+                <h3 className="mt-6 block text-lg font-bold">{member.name}</h3>
+                <p className="mb-4 font-mono text-xs uppercase tracking-widest opacity-50">{member.role}</p>
+                {member.bio && <PortableText value={member.bio as any} components={bioComponents} />}
+              </article>
+            ))}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: 'Leave a Note',
+      body: <DrawingPad />,
+    },
   ]
 
   return (
@@ -143,12 +172,9 @@ export default async function AboutPage() {
         <InkTrail />
         <div className="relative mx-auto flex w-full max-w-5xl flex-col justify-between gap-8 border-b border-black/10 px-4 pb-12 pt-32 sm:px-6 md:flex-row md:items-end dark:border-white/10">
           <div>
-            <ScrambleText
-              as="h1"
-              text={title}
-              duration={1400}
-              className="block text-5xl font-bold leading-none tracking-tighter break-words md:text-8xl"
-            />
+            <h1 className="block text-5xl font-bold leading-none tracking-tighter break-words md:text-8xl">
+              {title}
+            </h1>
           </div>
           <a
             href={`mailto:${email}`}
@@ -163,41 +189,8 @@ export default async function AboutPage() {
 
         <StackCards cards={cards} />
 
-        {/* Team: our portraits rest as pixels and reveal themselves under a cursor or a touch */}
-        <AnimatedSection delay={0.3} className="flex flex-col gap-10 md:gap-12 md:border-t border-black/10 dark:border-white/10 md:pt-24">
-          <div className="max-w-xl">
-            <ScrambleText as="h2" text="The Network" className="block text-xl font-bold tracking-tight mb-2" />
-            <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
-            <p className="mt-4 text-sm opacity-60">Key nodes in the Studio Pilz ecosystem.</p>
-          </div>
-          <div className="grid grid-cols-1 gap-16 sm:grid-cols-2 sm:gap-8 lg:gap-12">
-            {(about?.team ?? []).map((member) => (
-              <article key={member.name} className="flex flex-col">
-                {member.image ? (
-                  <PixelPortrait
-                    src={urlForImage(member.image).width(1000).height(1250).url()}
-                    alt={member.name}
-                    className="aspect-[4/5] w-full"
-                  />
-                ) : (
-                  <div className="aspect-[4/5] w-full bg-black/5 dark:bg-white/5" />
-                )}
-                <ScrambleText as="h3" text={member.name} className="mt-6 block text-lg font-bold" />
-                <p className="mb-4 font-mono text-xs uppercase tracking-widest opacity-50">{member.role}</p>
-                {member.bio && <PortableText value={member.bio as any} components={bioComponents} />}
-              </article>
-            ))}
-          </div>
-        </AnimatedSection>
-
-      {/* Interactive Guestbook / Drawing Pad Section */}
-      <AnimatedSection delay={0.4} className="mt-32 md:pt-16 md:border-t border-black/10 dark:border-white/10 w-full relative z-10">
-
-        <DrawingPad />
-
+        {/* everything visitors have left so far, in the same column as the cards */}
         <GuestbookGallery entries={guestbookEntries} />
-
-      </AnimatedSection>
 
       </div>
 

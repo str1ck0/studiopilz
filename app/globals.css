@@ -5,12 +5,15 @@
   --background: #F2E7D5;
   --foreground: #1A1A1A;
   --primary: #1A1A1A;
+  /* the warm orange of the mycelium threads */
+  --glow: #9a3b1b;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
+  --color-glow: var(--glow);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-share-tech-mono);
 }
@@ -19,6 +22,7 @@
   --background: #1A1A1A;
   --foreground: #F2E7D5;
   --primary: #F2E7D5;
+  --glow: #ff8a3d;
 }
 
 body {
