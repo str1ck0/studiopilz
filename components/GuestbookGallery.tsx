@@ -4,92 +4,96 @@
 import { motion } from 'framer-motion'
 import { GuestbookEntry } from '@/types'
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+const stamp = (iso: string) => {
+  const d = new Date(iso)
+  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${String(d.getUTCFullYear()).slice(2)}`
+}
+
+// a gentle tilt per note, the same on every visit
+const tilt = (id: string) => {
+  const hash = id.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0)
+  return ((hash % 5) - 2) * 0.8 // -1.6 to 1.6 degrees
+}
+
+// dark papers get light writing
+const isDarkPaper = (hex: string) => {
+  const m = hex.replace('#', '').match(/.{2}/g)
+  if (!m || m.length < 3) return false
+  const [r, g, b] = m.map((h) => parseInt(h, 16))
+  return 0.299 * r + 0.587 * g + 0.114 * b < 110
+}
+
+/**
+ * Every note visitors have left, as a wall of post-its: all the same square size,
+ * each on the paper it was made on, slightly askew, with a small mono stamp.
+ */
 export default function GuestbookGallery({ entries }: { entries: GuestbookEntry[] }) {
-  if (!entries || entries.length === 0) {
-    return (
-      <div className="py-12 text-center text-foreground/50 font-mono text-sm">
-        No notes yet. Be the first to draw something!
-      </div>
-    )
-  }
-
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  }
-
-  const item = {
-    hidden: { opacity: 0, scale: 0.9, rotate: -2 },
-    show: { opacity: 1, scale: 1, rotate: 0, transition: { duration: 0.5, ease: 'easeOut' as const } }
-  }
-
-  // Generate slightly random rotations for the sticky notes to make it look organic
-  const getRandomRotation = (id: string) => {
-    // deterministic based on ID so it doesn't jump on re-renders
-    const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
-    return (hash % 6) - 3 // returns -3 to +2 degrees
-  }
+  const count = entries?.length ?? 0
 
   return (
-    <motion.div 
-      variants={container} 
-      initial="hidden" 
-      whileInView="show" 
-      viewport={{ once: true, margin: '-100px' }}
-      className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6 mt-12 w-full max-w-[1600px] mx-auto pb-24 px-6"
-    >
-      {entries.map((entry) => (
-        <motion.div
-          key={entry._id}
-          variants={item}
-          className="break-inside-avoid relative"
-        >
-          <div 
-            className="w-full p-6 shadow-sm hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center relative overflow-hidden group"
-            style={{ 
-              backgroundColor: entry.paperColor || '#ffffff',
-              transform: `rotate(${getRandomRotation(entry._id)}deg)`,
-              border: '1px solid rgba(0,0,0,0.05)'
-            }}
-          >
-            {/* The Drawing */}
-            {entry.drawingData && (
-              <div className="w-full relative min-h-[150px] mb-4">
-                <img
-                  src={entry.drawingData}
-                  alt={`Drawing by ${entry.authorName || 'Anonymous'}`}
-                  className="w-full h-auto object-contain pointer-events-none filter drop-shadow-sm"
-                />
-              </div>
-            )}
+    <section className="flex flex-col gap-6" aria-label="Notes from visitors">
+      <div className="flex items-baseline justify-between gap-4 border-b border-foreground/10 pb-4">
+        <h2 className="text-lg font-bold tracking-tight md:text-xl">Notes from visitors</h2>
+        <span className="font-mono text-sm opacity-50">{String(count).padStart(3, '0')}</span>
+      </div>
 
-            {/* The Message */}
-            {entry.message && (
-              <p className="text-black/80 font-sans text-lg mb-6 w-full leading-relaxed whitespace-pre-wrap">
-                {entry.message}
-              </p>
-            )}
+      {count === 0 ? (
+        <p className="py-12 text-center font-mono text-sm opacity-50">No notes yet. Be the first to draw something.</p>
+      ) : (
+        <div className="grid grid-cols-1 gap-8 px-2 sm:grid-cols-2 lg:grid-cols-3">
+          {entries.map((entry, i) => {
+            const paper = entry.paperColor || '#fbf6ec'
+            const dark = isDarkPaper(paper)
+            const angle = tilt(entry._id)
+            return (
+              <motion.article
+                key={entry._id}
+                initial={{ opacity: 0, y: 16, rotate: angle }}
+                whileInView={{ opacity: 1, y: 0, rotate: angle }}
+                whileHover={{ rotate: 0, y: -4 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className={`relative flex aspect-square flex-col overflow-hidden rounded-sm p-5 shadow-[0_10px_24px_-12px_rgba(0,0,0,0.45)] ${dark ? 'text-[#f2e7d5]' : 'text-[#1a1a1a]'}`}
+                style={{ backgroundColor: paper }}
+              >
+                {/* the sticky strip along the top of a post-it */}
+                <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-black/[0.06] to-transparent" />
 
-            {/* Metadata (Author & Date) */}
-            <div className="w-full flex justify-between items-end border-t border-black/10 pt-4 mt-auto">
-              <span className="font-bold text-black/90 tracking-tighter">
-                {entry.authorName || 'Anonymous'}
-              </span>
-              <span className="font-mono text-xs text-black/40 uppercase tracking-widest">
-                {`${new Date(entry._createdAt).getUTCDate()} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][new Date(entry._createdAt).getUTCMonth()]}`}
-              </span>
-            </div>
-            
-            {/* Subtle subtle fold effect top corner */}
-            <div className="absolute top-0 right-0 w-8 h-8 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-               <div className="w-full h-full bg-gradient-to-bl from-black/10 to-transparent" />
-            </div>
-          </div>
-        </motion.div>
-      ))}
-    </motion.div>
+                {entry.drawingData && (
+                  <div className="relative min-h-0 flex-1">
+                    <img
+                      src={entry.drawingData}
+                      alt={`Drawing by ${entry.authorName || 'Anonymous'}`}
+                      className="pointer-events-none absolute inset-0 h-full w-full object-contain"
+                    />
+                  </div>
+                )}
+
+                {entry.message && (
+                  <p
+                    className={`whitespace-pre-wrap break-words text-base leading-relaxed opacity-80 ${
+                      entry.drawingData ? 'mt-3 line-clamp-2' : 'flex-1 line-clamp-[8] text-lg'
+                    }`}
+                  >
+                    {entry.message}
+                  </p>
+                )}
+                {!entry.drawingData && !entry.message && <div className="flex-1" />}
+
+                <div className="mt-4 flex items-baseline justify-between gap-4 border-t border-current/15 pt-3 font-mono text-xs uppercase tracking-widest">
+                  <span className="truncate">
+                    <span className="mr-3 opacity-50">{String(count - i).padStart(3, '0')}</span>
+                    {entry.authorName || 'Anonymous'}
+                  </span>
+                  <span className="shrink-0 opacity-50">{stamp(entry._createdAt)}</span>
+                </div>
+              </motion.article>
+            )
+          })}
+        </div>
+      )}
+    </section>
   )
 }

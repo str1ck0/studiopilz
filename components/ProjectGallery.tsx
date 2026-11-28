@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { useRef, useState } from 'react'
 import { urlForImage } from '@/sanity/lib/image'
+import ScrollBloom from './ScrollBloom'
 
 type GalleryItem = {
   _type: string
@@ -102,7 +103,8 @@ function VideoItem({ item, style }: { item: GalleryItem; style?: React.CSSProper
 
 function ImageItem({ item, index, style }: { item: GalleryItem; index: number; style?: React.CSSProperties }) {
   return (
-    <div
+    <ScrollBloom
+      seed={item.asset?._ref ?? `${item.url}-${index}`}
       className="relative overflow-hidden rounded bg-black/5 dark:bg-white/5 group w-full"
       style={style}
     >
@@ -116,7 +118,7 @@ function ImageItem({ item, index, style }: { item: GalleryItem; index: number; s
           <p className="text-white text-xs font-mono">{item.caption}</p>
         </div>
       )}
-    </div>
+    </ScrollBloom>
   )
 }
 

@@ -20,6 +20,8 @@ export async function getProjects(): Promise<Project[]> {
       description,
       year,
       mainImage,
+      "mainAspect": mainImage.asset->metadata.dimensions.aspectRatio,
+      "reel": gallery[_type == "image"][0...4]{ asset, alt, crop, hotspot, "aspect": asset->metadata.dimensions.aspectRatio },
       featured
     }
   `)

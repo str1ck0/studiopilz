@@ -1,6 +1,7 @@
-import { getProjects, getAboutData } from '@/sanity/lib/api'
-import ProjectList from '@/components/ProjectList'
+import { getProjects } from '@/sanity/lib/api'
+import ProjectReel from '@/components/ProjectReel'
 import { AnimatedSection } from '@/components/AnimatedSection'
+import PracticeList from '@/components/PracticeList'
 
 export const revalidate = 60
 
@@ -24,69 +25,39 @@ const OFFERINGS = [
   },
 ]
 
-const FALLBACK_SKILLS = [
-  'TouchDesigner', 'Python', 'JS / p5.js', 'local LLMs (Whisper, Ollama)',
-  'Blender / 3D Modelling', '3D Printing / Fabrication', 'CRT signal chain',
-  'OSC', 'Audio-reactive systems', 'Web Development (React, APIs, etc.)',
-  'Adobe CC', 'AI image & video generation tools'
-]
-
 export default async function WorkPage() {
-  const [projects, about] = await Promise.all([getProjects(), getAboutData()])
-  const skills = about?.skills?.length ? about.skills : FALLBACK_SKILLS
+  const projects = await getProjects()
 
   return (
-    <main className="min-h-screen pt-32 pb-24 px-6 md:px-12">
-      <div className="max-w-[1400px] mx-auto">
+    <main className="min-h-screen pt-32 pb-24">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12">
         <div className="mb-16 border-b border-foreground/10 pb-8 flex flex-col md:flex-row items-baseline justify-between gap-4">
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter">Work</h1>
+          <h1 className="font-semibold lowercase leading-[0.9] tracking-[-0.05em] break-words" style={{ fontSize: 'clamp(3rem, 9vw, 8rem)' }}>work</h1>
         </div>
 
-        {/* Offerings */}
+        {/* What we do: our offerings and the practice behind them */}
         <AnimatedSection className="mb-24">
-          <div className="mb-10">
-            <h2 className="text-xl font-bold tracking-tight mb-2">Offerings</h2>
+          <div className="mb-10 md:mb-14">
+            <h2 className="mb-2 text-2xl font-semibold lowercase tracking-[-0.03em]">what we do</h2>
             <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {OFFERINGS.map((o) => (
-              <div key={o.title} className="border border-foreground/10 p-6">
-                <h3 className="font-bold text-lg mb-3">{o.title}</h3>
-                <p className="text-sm opacity-70 leading-relaxed">{o.description}</p>
-              </div>
-            ))}
-          </div>
+          <PracticeList offerings={OFFERINGS} />
         </AnimatedSection>
 
-        {/* Technical Practice */}
-        <AnimatedSection delay={0.1} className="mb-24">
-          <div className="mb-10">
-            <h2 className="text-xl font-bold tracking-tight mb-2">Technical Practice</h2>
-            <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
-            <p className="mt-4 text-sm opacity-60">The primary tools and mediums that form our ecosystem.</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            {skills.map((skill, i) => (
-              <div
-                key={i}
-                className="px-4 py-2 border border-foreground/15 rounded-full text-sm font-mono hover:bg-foreground/5 hover:border-foreground/30 transition-colors"
-              >
-                {skill}
-              </div>
-            ))}
-          </div>
+        <AnimatedSection delay={0.15} className="border-t border-foreground/10 pt-12">
+          <h2 className="text-2xl font-semibold lowercase tracking-[-0.03em]">projects</h2>
         </AnimatedSection>
+      </div>
 
-        <AnimatedSection delay={0.15} className="mb-12 border-t border-foreground/10 pt-12">
-          <h2 className="text-xl font-bold tracking-tight">Projects</h2>
-        </AnimatedSection>
+      {/* scroll down to glide through the projects, sideways */}
+      <ProjectReel projects={projects} />
 
-        <ProjectList projects={projects} />
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12">
 
         <AnimatedSection delay={0.2} className="mt-32 border-t border-foreground/10 pt-24 mb-16">
           <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-12">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">About the Work</h2>
+              <h2 className="mb-4 text-3xl font-semibold lowercase tracking-[-0.03em] md:text-4xl">about the work</h2>
               <div className="w-12 h-px bg-black dark:bg-white opacity-20 mb-6"></div>
               <p className="font-mono text-xs uppercase tracking-widest opacity-60">Practice & Methodology</p>
             </div>
@@ -96,7 +67,7 @@ export default async function WorkPage() {
               <div>
                 <h3 className="text-xl font-bold mb-4 text-foreground">Tech Stack & Tools</h3>
                 <p className="mb-4">
-                  There is always a software and a hardware component to our work. We heavily utilize <strong>TouchDesigner</strong> as our "Quarterback", orchestrating and collating all sources and tools.
+                  There is always a software and a hardware component to our work. We heavily utilize <strong>TouchDesigner</strong> as our &ldquo;Quarterback&rdquo;, orchestrating and collating all sources and tools.
                 </p>
                 <p>
                   We build custom signal chains blending Python scripts, creative coding libraries (like p5.js), local LLMs (Ollama, Whisper), and vintage CRT video synthesis alongside modern web technologies and APIs.

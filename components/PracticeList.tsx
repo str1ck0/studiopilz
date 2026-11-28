@@ -1,0 +1,105 @@
+'use client'
+
+import { useRef, useState } from 'react'
+
+export type Offering = { title: string; description: string }
+
+// the practice areas behind our offerings, each with a few words on what's in it
+const PRACTICE = [
+  { title: 'Creative Code', tags: 'touchdesigner, python, p5.js, three.js, osc' },
+  { title: 'CRT Signal Chains', tags: 'salvaged tvs, video synthesis, live feeds' },
+  { title: 'Audio-Reactive', tags: 'sound, sensors, light, environment' },
+  { title: 'AI Systems', tags: 'whisper, ollama, image & video generation' },
+  { title: '3D & Fabrication', tags: 'blender, cad, 3d printing' },
+]
+
+const OFFERING_TAGS = ['site-specific, interactive, live av', 'websites, web apps, experiences', 'identity, art direction, print']
+
+// where each row sits across the full width: pushed left, right or in between.
+// Rows are aligned rather than offset, so a long one can never run off screen.
+const PLACEMENT: { justify: 'flex-start' | 'center' | 'flex-end'; nudge: string }[] = [
+  { justify: 'flex-start', nudge: '0%' },
+  { justify: 'flex-end', nudge: '6%' },
+  { justify: 'center', nudge: '0%' },
+  { justify: 'flex-start', nudge: '12%' },
+  { justify: 'flex-end', nudge: '0%' },
+  { justify: 'flex-start', nudge: '4%' },
+  { justify: 'center', nudge: '10%' },
+  { justify: 'flex-end', nudge: '14%' },
+]
+
+/**
+ * What we do, as big mono rows spread across the page. Hovering (or tapping) a
+ * row fills it in through a flash of stripes.
+ */
+export default function PracticeList({ offerings }: { offerings: Offering[] }) {
+  const lastPointer = useRef('mouse')
+  const [active, setActive] = useState<number | null>(null)
+
+  const rows = [...offerings.map((o, i) => ({ title: o.title, tags: OFFERING_TAGS[i] ?? '' })), ...PRACTICE]
+
+  return (
+    <ul
+      className="flex flex-col gap-2 md:gap-3"
+      onPointerDownCapture={(e) => {
+        lastPointer.current = e.pointerType
+      }}
+      onPointerLeave={() => setActive(null)}
+    >
+      {rows.map((row, i) => {
+        const on = active === i
+        const place = PLACEMENT[i % PLACEMENT.length]
+        const tagsFirst = place.justify === 'flex-end'
+        return (
+          <li
+            key={row.title}
+            className="flex"
+            style={{
+              justifyContent: place.justify,
+              paddingLeft: place.justify === 'flex-start' ? place.nudge : undefined,
+              paddingRight: place.justify === 'flex-end' ? place.nudge : undefined,
+            }}
+          >
+            <button
+              type="button"
+              aria-label={`${row.title}: ${row.tags}`}
+              aria-pressed={on}
+              onPointerEnter={(e) => e.pointerType === 'mouse' && setActive(i)}
+              onFocus={(e) => e.currentTarget.matches(':focus-visible') && setActive(i)}
+              onBlur={() => setActive(null)}
+              onClick={() => {
+                if (lastPointer.current !== 'mouse') setActive((prev) => (prev === i ? null : i))
+              }}
+              // phones and tablets: tags always sit under the title, so every row is the same height.
+              // wide screens: tags sit beside the title, on alternating sides.
+              className={`relative inline-flex max-w-full flex-col items-start gap-x-5 gap-y-1 overflow-hidden px-3 py-1.5 text-left transition-colors duration-200 lg:flex-row lg:items-baseline md:px-5 md:py-2 ${
+                on ? 'text-background' : 'bg-[color-mix(in_srgb,var(--foreground)_5%,var(--background))] text-foreground'
+              } ${tagsFirst ? 'lg:flex-row-reverse lg:justify-end' : ''}`}
+            >
+              {/* solid (not see-through), so the spores drifting behind the page stay behind it */}
+              {/* the fill: wipes in in steps, with stripes flashing across */}
+              <span
+                aria-hidden
+                className="absolute inset-0 bg-foreground"
+                style={{ clipPath: on ? 'inset(0 0 0 0)' : 'inset(0 100% 0 0)', transition: 'clip-path 260ms steps(5)' }}
+              />
+              {on && (
+                <span
+                  aria-hidden
+                  className="absolute inset-0 bg-[repeating-linear-gradient(to_bottom,var(--background)_0px,var(--background)_2px,transparent_2px,transparent_6px)] motion-safe:animate-[row-stripes_420ms_steps(4)_forwards] motion-reduce:hidden"
+                />
+              )}
+              <span className="relative whitespace-nowrap font-mono text-[min(7.4vw,6rem)] uppercase leading-none tracking-tight lg:text-[min(6.2vw,6rem)]">
+                {row.title}
+              </span>
+              {/* one line of tags everywhere, so the rows stay the same height */}
+              <span className="relative whitespace-nowrap font-mono text-[min(2.6vw,11px)] uppercase leading-snug tracking-wider opacity-60">
+                {row.tags}
+              </span>
+            </button>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
