@@ -5,8 +5,7 @@ import { urlForImage } from '@/sanity/lib/image'
 import { PortableText } from '@portabletext/react'
 import DrawingPad from '@/components/DrawingPad'
 import GuestbookGallery from '@/components/GuestbookGallery'
-import InkTrail from '@/components/InkTrail'
-import StackCards from '@/components/StackCards'
+import ZoomChapters from '@/components/ZoomChapters'
 import PixelPortrait from '@/components/PixelPortrait'
 
 export const revalidate = 60
@@ -138,8 +137,8 @@ export default async function AboutPage() {
         <div className="flex flex-col gap-10">
           <p className="font-mono text-sm uppercase tracking-widest opacity-60">Nodes in the ecosystem.</p>
           <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 sm:gap-8 lg:gap-12">
-            {(about?.team ?? []).map((member) => (
-              <article key={member.name} className="flex flex-col">
+            {(about?.team ?? []).map((member, i) => (
+              <article key={`${member.name}-${i}`} className="flex flex-col">
                 {member.image ? (
                   <PixelPortrait
                     src={urlForImage(member.image).width(1000).height(1250).url()}
@@ -167,12 +166,10 @@ export default async function AboutPage() {
   return (
     <main className="min-h-screen pb-24 overflow-x-clip">
 
-      {/* Header: threads grow wherever the cursor or a finger moves */}
       <section className="relative flex min-h-[70svh] items-end">
-        <InkTrail />
         <div className="relative mx-auto flex w-full max-w-5xl flex-col justify-between gap-8 border-b border-black/10 px-4 pb-12 pt-32 sm:px-6 md:flex-row md:items-end dark:border-white/10">
           <div>
-            <h1 className="block text-5xl font-bold leading-none tracking-tighter break-words md:text-8xl">
+            <h1 className="block font-semibold lowercase leading-[0.9] tracking-[-0.05em] break-words" style={{ fontSize: 'clamp(3rem, 9vw, 8rem)' }}>
               {title}
             </h1>
           </div>
@@ -185,11 +182,12 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <div className="mx-auto mt-16 flex max-w-5xl flex-col gap-y-24 px-4 sm:px-6 md:mt-24">
+      <div className="mx-auto flex max-w-5xl flex-col gap-y-24 px-4 sm:px-6">
 
-        <StackCards cards={cards} />
+        {/* the chapters: each eases back as it ends, and the next comes forward out of it */}
+        <ZoomChapters chapters={cards} />
 
-        {/* everything visitors have left so far, in the same column as the cards */}
+        {/* everything visitors have left so far, in the same column */}
         <GuestbookGallery entries={guestbookEntries} />
 
       </div>

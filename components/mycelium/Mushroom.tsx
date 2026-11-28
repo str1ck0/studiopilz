@@ -290,9 +290,10 @@ export default function Mushroom({
       const near = Math.exp(-sp.tmp.distanceToSquared(sh.pointerWorld) / 5) * sh.mouseStrength
       const flash = Math.max(Math.exp(-burstAge * 2.2), sp.hopFlare * 0.7)
       const breathe = still ? 0 : Math.sin(t * 1.6) * 0.08
+      // gliding in at the end of the journey, the light swells to meet you
       glow.current.material.opacity =
-        0.2 + breathe + near * 0.55 + flash * 0.9 + flare * 0.5 + (sh.dragging ? 0.4 : 0)
-      glow.current.scale.setScalar(1.4 + flash * 0.8 + near * 0.3 + flare * 0.6)
+        0.2 + breathe + near * 0.55 + flash * 0.9 + flare * 0.5 + (sh.dragging ? 0.4 : 0) + sh.door * 1.2
+      glow.current.scale.setScalar(1.4 + flash * 0.8 + near * 0.3 + flare * 0.6 + sh.door * 2.5)
     }
 
     // ---- spores: a puff from under the cap on every click

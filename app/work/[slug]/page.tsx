@@ -8,6 +8,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { AnimatedSection } from '@/components/AnimatedSection'
 import { ProjectGallery } from '@/components/ProjectGallery'
+import ScrollBloom from '@/components/ScrollBloom'
 
 export const revalidate = 60
 
@@ -31,12 +32,14 @@ export default async function ProjectPage({
           return null
         }
         return (
-          <img
-            alt={value.alt || ' '}
-            loading="lazy"
-            src={urlForImage(value).width(1600).quality(85).url()}
-            className="w-full my-8 bg-black/5 dark:bg-white/5 object-cover rounded"
-          />
+          <ScrollBloom seed={value._key || value.asset._ref} className="my-8">
+            <img
+              alt={value.alt || ' '}
+              loading="lazy"
+              src={urlForImage(value).width(1600).quality(85).url()}
+              className="w-full bg-black/5 dark:bg-white/5 object-cover rounded"
+            />
+          </ScrollBloom>
         )
       },
     },
@@ -65,13 +68,13 @@ export default async function ProjectPage({
   return (
     <article className="min-h-screen pt-32 pb-24 px-6 max-w-5xl mx-auto overflow-hidden">
       <AnimatedSection className="mb-12">
-        <Link 
-          href="/" 
-          className="text-sm font-mono tracking-widest uppercase hover:underline underline-offset-4 mb-8 inline-block opacity-60 hover:opacity-100 transition-opacity"
+        <Link
+          href="/work"
+          className="mb-8 inline-flex min-h-11 items-center font-mono text-sm lowercase tracking-wide opacity-60 underline-offset-4 transition-opacity hover:underline hover:opacity-100"
         >
-          ← Back to work
+          ← back to work
         </Link>
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-6 leading-tight">
+        <h1 className="mb-6 font-semibold lowercase leading-[0.9] tracking-[-0.05em] break-words" style={{ fontSize: 'clamp(3rem, 9vw, 8rem)' }}>
           {project.title}
         </h1>
         
@@ -98,14 +101,16 @@ export default async function ProjectPage({
       {/* Main Image */}
       {project.mainImage && (
         <AnimatedSection delay={0.1} className="aspect-[16/9] md:aspect-[21/9] w-full mb-16 overflow-hidden bg-black/5 dark:bg-white/5 relative group rounded">
-          <Image
-            src={urlForImage(project.mainImage).width(2400).quality(90).url()}
-            alt={project.mainImage.alt || project.title}
-            fill
-            sizes="100vw"
-            priority
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-          />
+          <ScrollBloom seed={project._id} leaveOnly className="absolute inset-0">
+            <Image
+              src={urlForImage(project.mainImage).width(2400).quality(90).url()}
+              alt={project.mainImage.alt || project.title}
+              fill
+              sizes="100vw"
+              priority
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            />
+          </ScrollBloom>
         </AnimatedSection>
       )}
 

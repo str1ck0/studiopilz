@@ -5,7 +5,9 @@ import { useEffect, useRef, useState } from 'react'
 
 // block sizes in css px, from the resting pixelated state down to the sharp photo
 const STEPS = [28, 20, 14, 10, 7, 5, 3, 2, 1]
-const STEP_MS = 160
+// quick hard cuts, like the reference site: about 0.3s to sharpen, 0.2s to break apart
+const REVEAL_STEP_MS = 30
+const HIDE_STEP_MS = 16
 
 /**
  * A portrait that rests as chunky pixels and resolves into the photo while a cursor is
@@ -82,7 +84,8 @@ export default function PixelPortrait({ src, alt, className = '' }: { src: strin
     const tick = (now: number) => {
       raf = 0
       if (disposed || !loaded) return
-      if (now - lastStep >= STEP_MS) {
+      const stepMs = target > step ? REVEAL_STEP_MS : HIDE_STEP_MS
+      if (now - lastStep >= stepMs) {
         lastStep = now
         step += Math.sign(target - step)
         draw()

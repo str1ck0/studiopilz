@@ -32,6 +32,8 @@ export interface SharedState {
   /** how far it has spun (radians) and how much the spin is flinging the cap outward */
   spin: number
   flare: number
+  /** 0→1 as the camera glides into the mushroom at the end of the journey */
+  door: number
   /** 0→1 as the mushroom pops up on arrival */
   pop: number
   reducedMotion: boolean
@@ -58,6 +60,7 @@ export function createSharedState(): SharedState {
     spin: 0,
     flare: 0,
     pop: 0,
+    door: 0,
     reducedMotion: false,
   }
 }

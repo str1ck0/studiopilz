@@ -7,7 +7,6 @@ import { useTheme } from 'next-themes'
 import * as THREE from 'three'
 import { generateNetwork } from './generateNetwork'
 import Mushroom from './Mushroom'
-import Portal from './Portal'
 import {
   BEND_REACH,
   MAX_INTERACT_GROWTH,
@@ -17,7 +16,7 @@ import {
   type Palette,
   type SharedState,
 } from './shared'
-import { A_LEN, T, samplePortal, type Timeline } from './timeline'
+import { A_LEN, closingAt, doorAt, type Timeline } from './timeline'
 
 // ---------------------------------------------------------------- shaders
 
@@ -310,6 +309,8 @@ function Halo({ shared, palette }: { shared: RefObject<SharedState>; palette: Pa
 // camera path over the first chapter: close on the mushroom → pull back as the
 // network spreads → dive in. WIDE is also where the journey ends.
 const WIDE = { pos: new THREE.Vector3(0, 1.6, 13), look: new THREE.Vector3(0, -1.6, 0) }
+// the end of the journey: inside the glass cap, where the light lives
+const INSIDE = { pos: new THREE.Vector3(0, 1.6, 0.2), look: new THREE.Vector3(0, 1.55, -2) }
 const KEYS = [
   { at: 0, pos: new THREE.Vector3(0, 1.1, 7.6), look: new THREE.Vector3(0, 0.95, 0) },
   { at: 0.45, ...WIDE },
@@ -362,8 +363,11 @@ function Rig({
   useFrame((_, delta) => {
     const u = journeyRef.current ?? 0
     const p = Math.min(u / A_LEN, 1)
-    // once the first project covers the screen, quietly move to the closing shot
-    const closing = u > timeline.portalStart + T
+    // after the dive, the camera pulls back out over the whole network
+    const closing = closingAt(timeline, u)
+    // and then glides into the glass mushroom: slow at first, then drawn in
+    const door = doorAt(timeline, u)
+    const inward = door * door * door * (door * (door * 6 - 15) + 10)
 
     // the network unravels with scroll, or a little with cursor play
     const scrollGrowth = THREE.MathUtils.smoothstep(p, 0.02, 0.8)
@@ -373,28 +377,28 @@ function Rig({
     // cursor influence fades in while moving, out when idle
     const active = performance.now() - shared.current.lastPointerMove < 2500 ? 1 : 0
     const mouseStrength = THREE.MathUtils.damp(shared.current.mouseStrength, active, 2.5, delta)
-    Object.assign(shared.current, { growth, mouseStrength })
+    Object.assign(shared.current, { growth, mouseStrength, door })
 
-    // skip drawing the 3D world while a project fills the screen
-    const { seg, mix } = samplePortal(timeline, u)
-    const n = timeline.count
-    const covered = (seg >= 1 && seg < n) || (seg === 0 && mix >= 1)
-    setVisible(world.current, !covered)
-    setVisible(mushroom.current, !closing ? p < 0.9 : seg === n)
+    // the mushroom is out of shot deep in the dive, and back once we've pulled out
+    setVisible(world.current, true)
+    setVisible(mushroom.current, p < 0.9 || closing > 0.4)
 
-    // camera
-    if (closing) {
-      tmp.pos.copy(WIDE.pos)
-      tmp.target.copy(WIDE.look)
-    } else {
-      sampleKeys(p, tmp.pos, tmp.target)
+    // camera: along the journey's path, then back out to the wide shot
+    sampleKeys(p, tmp.pos, tmp.target)
+    if (closing > 0) {
+      tmp.pos.lerp(WIDE.pos, closing)
+      tmp.target.lerp(WIDE.look, closing)
+    }
+    if (inward > 0) {
+      tmp.pos.lerp(INSIDE.pos, inward)
+      tmp.target.lerp(INSIDE.look, inward)
     }
     const aspect = size.width / size.height
-    const pullAmount = closing ? 0 : THREE.MathUtils.smoothstep(p, 0.45, 1)
+    const pullAmount = THREE.MathUtils.smoothstep(p, 0.45, 1) * (1 - closing)
     const pull = THREE.MathUtils.lerp(Math.max(1, 0.85 / aspect), 1, pullAmount)
     tmp.pos.set(
-      tmp.pos.x + shared.current.pointer.x * 0.5,
-      tmp.pos.y + shared.current.pointer.y * 0.3,
+      tmp.pos.x + shared.current.pointer.x * 0.5 * (1 - inward),
+      tmp.pos.y + shared.current.pointer.y * 0.3 * (1 - inward),
       tmp.pos.z * pull
     )
     camera.position.lerp(tmp.pos, 1 - Math.exp(-delta * 3))
@@ -418,12 +422,10 @@ function Rig({
 export default function MyceliumScene({
   journeyRef,
   timeline,
-  imageUrls,
 }: {
   /** scroll position in viewport heights */
   journeyRef: RefObject<number>
   timeline: Timeline
-  imageUrls: string[]
 }) {
   const { resolvedTheme } = useTheme()
   const palette = PALETTES[resolvedTheme === 'light' ? 'light' : 'dark']
@@ -537,7 +539,6 @@ export default function MyceliumScene({
             </Suspense>
           </group>
         </group>
-        <Portal journeyRef={journeyRef} timeline={timeline} urls={imageUrls} hot={palette.hot} />
       </Canvas>
     </div>
   )

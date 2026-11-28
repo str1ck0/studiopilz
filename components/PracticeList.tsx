@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
 export type Offering = { title: string; description: string }
 
@@ -28,48 +28,9 @@ const PLACEMENT: { justify: 'flex-start' | 'center' | 'flex-end'; nudge: string 
   { justify: 'flex-end', nudge: '14%' },
 ]
 
-const CHARS = ".';:!+*($W&@#"
-
-/** a row title that scrambles through ASCII characters each time it's activated */
-function Title({ text, active }: { text: string; active: boolean }) {
-  const [display, setDisplay] = useState(text)
-  useEffect(() => {
-    let frame = 0
-    // leaving mid-scramble snaps straight back to the real word
-    if (!active || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      frame = requestAnimationFrame(() => setDisplay(text))
-      return () => cancelAnimationFrame(frame)
-    }
-    const start = performance.now()
-    const tick = (now: number) => {
-      const t = Math.min((now - start) / 320, 1)
-      const settled = Math.floor(t * text.length)
-      setDisplay(
-        t === 1
-          ? text
-          : text
-              .split('')
-              .map((ch, i) => (i < settled || ch === ' ' ? ch : CHARS[Math.floor(Math.random() * CHARS.length)]))
-              .join(''),
-      )
-      if (t < 1) frame = requestAnimationFrame(tick)
-    }
-    frame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frame)
-  }, [active, text])
-  return (
-    <span className="relative">
-      <span className="invisible">{text}</span>
-      <span aria-hidden className="absolute inset-0">
-        {display}
-      </span>
-    </span>
-  )
-}
-
 /**
  * What we do, as big mono rows spread across the page. Hovering (or tapping) a
- * row fills it in through a flash of stripes while its title scrambles.
+ * row fills it in through a flash of stripes.
  */
 export default function PracticeList({ offerings }: { offerings: Offering[] }) {
   const lastPointer = useRef('mouse')
@@ -112,9 +73,10 @@ export default function PracticeList({ offerings }: { offerings: Offering[] }) {
               // phones and tablets: tags always sit under the title, so every row is the same height.
               // wide screens: tags sit beside the title, on alternating sides.
               className={`relative inline-flex max-w-full flex-col items-start gap-x-5 gap-y-1 overflow-hidden px-3 py-1.5 text-left transition-colors duration-200 lg:flex-row lg:items-baseline md:px-5 md:py-2 ${
-                on ? 'text-background' : 'bg-foreground/[0.05] text-foreground'
+                on ? 'text-background' : 'bg-[color-mix(in_srgb,var(--foreground)_5%,var(--background))] text-foreground'
               } ${tagsFirst ? 'lg:flex-row-reverse lg:justify-end' : ''}`}
             >
+              {/* solid (not see-through), so the spores drifting behind the page stay behind it */}
               {/* the fill: wipes in in steps, with stripes flashing across */}
               <span
                 aria-hidden
@@ -128,7 +90,7 @@ export default function PracticeList({ offerings }: { offerings: Offering[] }) {
                 />
               )}
               <span className="relative whitespace-nowrap font-mono text-[min(7.4vw,6rem)] uppercase leading-none tracking-tight lg:text-[min(6.2vw,6rem)]">
-                <Title text={row.title} active={on} />
+                {row.title}
               </span>
               {/* one line of tags everywhere, so the rows stay the same height */}
               <span className="relative whitespace-nowrap font-mono text-[min(2.6vw,11px)] uppercase leading-snug tracking-wider opacity-60">

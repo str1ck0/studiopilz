@@ -1,5 +1,5 @@
 import { getProjects } from '@/sanity/lib/api'
-import ProjectList from '@/components/ProjectList'
+import ProjectReel from '@/components/ProjectReel'
 import { AnimatedSection } from '@/components/AnimatedSection'
 import PracticeList from '@/components/PracticeList'
 
@@ -29,31 +29,35 @@ export default async function WorkPage() {
   const projects = await getProjects()
 
   return (
-    <main className="min-h-screen pt-32 pb-24 px-6 md:px-12">
-      <div className="max-w-[1400px] mx-auto">
+    <main className="min-h-screen pt-32 pb-24">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12">
         <div className="mb-16 border-b border-foreground/10 pb-8 flex flex-col md:flex-row items-baseline justify-between gap-4">
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter">Work</h1>
+          <h1 className="font-semibold lowercase leading-[0.9] tracking-[-0.05em] break-words" style={{ fontSize: 'clamp(3rem, 9vw, 8rem)' }}>work</h1>
         </div>
 
         {/* What we do: our offerings and the practice behind them */}
         <AnimatedSection className="mb-24">
           <div className="mb-10 md:mb-14">
-            <h2 className="text-xl font-bold tracking-tight mb-2">What We Do</h2>
+            <h2 className="mb-2 text-2xl font-semibold lowercase tracking-[-0.03em]">what we do</h2>
             <div className="w-12 h-px bg-black dark:bg-white opacity-20"></div>
           </div>
           <PracticeList offerings={OFFERINGS} />
         </AnimatedSection>
 
-        <AnimatedSection delay={0.15} className="mb-12 border-t border-foreground/10 pt-12">
-          <h2 className="text-xl font-bold tracking-tight">Projects</h2>
+        <AnimatedSection delay={0.15} className="border-t border-foreground/10 pt-12">
+          <h2 className="text-2xl font-semibold lowercase tracking-[-0.03em]">projects</h2>
         </AnimatedSection>
+      </div>
 
-        <ProjectList projects={projects} />
+      {/* scroll down to glide through the projects, sideways */}
+      <ProjectReel projects={projects} />
+
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12">
 
         <AnimatedSection delay={0.2} className="mt-32 border-t border-foreground/10 pt-24 mb-16">
           <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-12">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">About the Work</h2>
+              <h2 className="mb-4 text-3xl font-semibold lowercase tracking-[-0.03em] md:text-4xl">about the work</h2>
               <div className="w-12 h-px bg-black dark:bg-white opacity-20 mb-6"></div>
               <p className="font-mono text-xs uppercase tracking-widest opacity-60">Practice & Methodology</p>
             </div>

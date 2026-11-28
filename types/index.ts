@@ -16,6 +16,10 @@ export interface Project {
   tags?: string[]
   link?: string
   featured?: boolean
+  /** width / height of the main image (from the projects list query) */
+  mainAspect?: number
+  /** the first few gallery pictures with their proportions (from the projects list query) */
+  reel?: { asset: any; alt?: string; crop?: any; hotspot?: any; aspect?: number }[]
 }
 
 export interface CvEntry {

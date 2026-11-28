@@ -43,7 +43,7 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${shareTechMono.variable} font-sans antialiased text-black dark:text-white`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <SiteChrome />
+          <SiteChrome settings={siteSettings ?? null} />
           {children}
           <Footer settings={siteSettings ?? null} />
         </ThemeProvider>
